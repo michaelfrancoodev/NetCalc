@@ -62,6 +62,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
     if (confirmed == true) {
       await LocalStorage.clearFavorites();
+      if (!mounted) return;
       setState(() => _entries = []);
     }
   }

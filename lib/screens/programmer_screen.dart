@@ -279,8 +279,8 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
             _pRow(['4', '5', '6', '1', '2']),
             _pRow(['3', '0', 'DEL', 'AC', '=']),
           ] else ...[
-            _pRow(['7', '8', '9', 'LSH', 'RSH']),
-            _pRow(['4', '5', '6', 'NOT', 'DEL']),
+            _pRow(['7', '8', '9', 'DEL', '=']),
+            _pRow(['4', '5', '6', 'DEL', 'AC']),
           ],
           if (!hexExtra) _pRow(['1', '2', '3', '0', '=']),
         ],

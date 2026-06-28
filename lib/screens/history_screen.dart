@@ -63,6 +63,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
     if (confirmed == true) {
       await LocalStorage.clearHistory();
+      if (!mounted) return;
       setState(() => _entries = []);
     }
   }

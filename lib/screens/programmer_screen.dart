@@ -277,7 +277,7 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
             _pRow(['A', 'B', 'C', 'D', 'E']),
             _pRow(['F', '7', '8', '9', 'DEL']),
             _pRow(['4', '5', '6', '1', '2']),
-            _pRow(['3', '0', '(', ')', '=']),
+            _pRow(['3', '0', 'LSH', 'RSH', '=']),
           ] else ...[
             _pRow(['7', '8', '9', 'LSH', 'RSH']),
             _pRow(['4', '5', '6', 'DEL', 'AC']),
@@ -291,7 +291,7 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
   Widget _pRow(List<String> labels) => Expanded(
         child: Row(
           children: labels.map((l) {
-            final enabled = _isOp(l) || _isValidDigit(l) || l == '(' || l == ')' || l == '=';
+            final enabled = _isOp(l) || _isValidDigit(l) || l == '=' || l == 'DEL' || l == 'AC';
             return Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(4),

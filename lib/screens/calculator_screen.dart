@@ -987,13 +987,14 @@ String sanitizeExpr(String raw, String prevAns) {
   // Replace ANS with previous answer
   s = s.replaceAll('ANS', prevAns.isEmpty ? '0' : prevAns);
 
-  // Factorial: n! → computed value (limited to n ≤ 20)
+  // Factorial: n! → computed value using double to support large n
   s = s.replaceAllMapped(RegExp(r'(\d+)!'), (m) {
     final n = int.parse(m.group(1)!);
-    if (n > 20) return '0';
-    int f = 1;
+    if (n > 170) return 'Infinity'; // double.infinity territory
+    if (n < 0) return '0';
+    double f = 1;
     for (int i = 2; i <= n; i++) f *= i;
-    return f.toString();
+    return f.toStringAsFixed(0);
   });
 
   // Percentage: n% → (n/100) only when NOT used as MOD (not followed by a digit/letter/open-paren)

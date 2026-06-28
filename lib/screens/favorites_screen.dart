@@ -35,6 +35,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Future<void> _deleteAt(int index) async {
     await LocalStorage.removeFavoriteAt(index);
+    if (!mounted) return;
     setState(() => _entries.removeAt(index));
   }
 

@@ -25,9 +25,9 @@ class _MatrixScreenState extends State<MatrixScreen> {
     _initControllers();
   }
 
-  void _initControllers() {
+  void _initControllers({bool disposeExisting = false}) {
     // Dispose existing before recreating
-    if (mounted) {
+    if (disposeExisting) {
       try {
         for (var row in _aCtrl) for (var c in row) c.dispose();
         for (var row in _bCtrl) for (var c in row) c.dispose();
@@ -196,11 +196,11 @@ class _MatrixScreenState extends State<MatrixScreen> {
               _matrixCard('Matrix A', _aCtrl, _rowsA, _colsA,
                   onRows: (v) => setState(() {
                         _rowsA = v;
-                        _initControllers();
+                        _initControllers(disposeExisting: true);
                       }),
                   onCols: (v) => setState(() {
                         _colsA = v;
-                        _initControllers();
+                        _initControllers(disposeExisting: true);
                       })),
               const SizedBox(height: 16),
 
@@ -209,11 +209,11 @@ class _MatrixScreenState extends State<MatrixScreen> {
                 _matrixCard('Matrix B', _bCtrl, _rowsB, _colsB,
                     onRows: (v) => setState(() {
                           _rowsB = v;
-                          _initControllers();
+                          _initControllers(disposeExisting: true);
                         }),
                     onCols: (v) => setState(() {
                           _colsB = v;
-                          _initControllers();
+                          _initControllers(disposeExisting: true);
                         })),
 
               const SizedBox(height: 20),

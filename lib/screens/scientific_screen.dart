@@ -110,7 +110,8 @@ class _ScientificScreenState extends State<ScientificScreen>
       case 'e':  return 'e';
       case 'φ':  return '1.6180339887';
       case '|x|': return 'abs(';
-      case 'n!': return '!';
+      case 'n!':  return '!';
+      case 'MOD': return '%';
       case 'log₂(': return 'log2(';
       case 'RND': return '${math.Random().nextDouble()}';
       default: return v;
@@ -161,7 +162,26 @@ class _ScientificScreenState extends State<ScientificScreen>
   }
 
   String _sanitize(String expr, String ans) {
-    return expr.replaceAll('ANS', ans.isEmpty ? '0' : ans).replaceAll('pi', '3.141592653589793').replaceAll('×', '*').replaceAll('÷', '/').replaceAll('−', '-');
+    String s = expr
+        .replaceAll('ANS', ans.isEmpty ? '0' : ans)
+        .replaceAll('pi', '3.141592653589793')
+        .replaceAll('×', '*')
+        .replaceAll('÷', '/')
+        .replaceAll('−', '-');
+    // Factorial: n! → computed value
+    s = s.replaceAllMapped(RegExp(r'(\d+)!'), (m) {
+      final n = int.parse(m.group(1)!);
+      if (n < 0) return '0';
+      if (n > 170) return '(1/0)';
+      double f = 1;
+      for (int i = 2; i <= n; i++) f *= i;
+      return f.toStringAsFixed(0);
+    });
+    // Auto-close unclosed parentheses
+    final open  = '('.allMatches(s).length;
+    final close = ')'.allMatches(s).length;
+    if (open > close) s += ')' * (open - close);
+    return s;
   }
 
   String _fmt(double v) {

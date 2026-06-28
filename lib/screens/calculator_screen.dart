@@ -12,6 +12,14 @@ import 'help_screen.dart';
 import 'about_screen.dart';
 import 'favorites_screen.dart';
 import 'settings_screen.dart';
+import 'formula_screen.dart';
+import 'scientific_screen.dart';
+import 'finance_screen.dart';
+import 'programmer_screen.dart';
+import 'fraction_screen.dart';
+import 'matrix_screen.dart';
+import 'statistics_screen.dart';
+import 'appearance_screen.dart';
 
 class CalculatorScreen extends StatefulWidget {
   final String? initialExpression;
@@ -146,6 +154,10 @@ class _CalculatorScreenState extends State<CalculatorScreen>
         return 'pi';
       case 'e':
         return 'e';
+      case 'ABS':
+        return 'abs(';
+      case 'MOD':
+        return '%';
       default:
         return v;
     }
@@ -540,6 +552,12 @@ class _CalculatorScreenState extends State<CalculatorScreen>
               MaterialPageRoute(
                   builder: (_) => const UnitConversionScreen()));
         }
+        if (index == 2) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => const FormulaScreen()));
+        }
         if (index == 3) _scaffoldKey.currentState?.openDrawer();
       },
       child: Column(
@@ -610,45 +628,95 @@ class _CalculatorScreenState extends State<CalculatorScreen>
           Expanded(
             child: ListView(
               children: [
+                // ── Quick access ──────────────────────────────────────
+                _drawerSection('Quick Access'),
                 _drawerItem(
                   Icons.history_rounded,
                   'History',
-                      () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const HistoryScreen())),
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const HistoryScreen())),
                 ),
                 _drawerItem(
                   Icons.star_outline_rounded,
                   'Favorites',
-                      () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const FavoritesScreen())),
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const FavoritesScreen())),
+                ),
+                // ── Tools ─────────────────────────────────────────────
+                _drawerSection('Tools'),
+                _drawerItem(
+                  Icons.science_outlined,
+                  'Scientific',
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const ScientificScreen())),
+                ),
+                _drawerItem(
+                  Icons.account_balance_rounded,
+                  'Finance',
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const FinanceScreen())),
+                ),
+                _drawerItem(
+                  Icons.code_rounded,
+                  'Programmer',
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const ProgrammerScreen())),
+                ),
+                _drawerItem(
+                  Icons.calculate_outlined,
+                  'Fractions',
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const FractionScreen())),
+                ),
+                _drawerItem(
+                  Icons.grid_3x3_rounded,
+                  'Matrix',
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const MatrixScreen())),
+                ),
+                _drawerItem(
+                  Icons.bar_chart_rounded,
+                  'Statistics',
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const StatisticsScreen())),
+                ),
+                _drawerItem(
+                  Icons.swap_horiz_rounded,
+                  'Unit Converter',
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const UnitConversionScreen())),
+                ),
+                _drawerItem(
+                  Icons.menu_book_outlined,
+                  'Formula Library',
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const FormulaScreen())),
+                ),
+                // ── Settings ──────────────────────────────────────────
+                _drawerSection('Settings'),
+                _drawerItem(
+                  Icons.palette_outlined,
+                  'Appearance',
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const AppearanceScreen())),
                 ),
                 _drawerItem(
                   Icons.settings_outlined,
                   'Settings',
-                      () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const SettingsScreen())),
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen())),
                 ),
                 _drawerItem(
                   Icons.help_outline_rounded,
                   'Help & Guide',
-                      () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const HelpScreen())),
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const HelpScreen())),
                 ),
                 _drawerItem(
                   Icons.info_outline_rounded,
                   'About',
-                      () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const AboutScreen())),
+                  () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const AboutScreen())),
                 ),
               ],
             ),
@@ -658,9 +726,23 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     ),
   );
 
+  Widget _drawerSection(String title) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+    child: Text(
+      title.toUpperCase(),
+      style: const TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.w800,
+        color: AppTheme.textGrey,
+        letterSpacing: 1.5,
+      ),
+    ),
+  );
+
   Widget _drawerItem(IconData i, String l, VoidCallback t) => ListTile(
     leading: Icon(i, color: AppTheme.textGrey, size: 20),
     title: Text(l, style: const TextStyle(fontWeight: FontWeight.w500)),
+    dense: true,
     onTap: () {
       Navigator.pop(context);
       t();
@@ -877,9 +959,9 @@ String sanitizeExpr(String raw, String prevAns) {
     return f.toString();
   });
 
-  // Percentage: n% → (n/100)
+  // Percentage: n% → (n/100) only when NOT used as MOD (not followed by a digit/letter/open-paren)
   s = s.replaceAllMapped(
-    RegExp(r'(\d+\.?\d*)%'),
+    RegExp(r'(\d+\.?\d*)%(?![0-9a-zA-Z(])'),
         (m) => '(${m.group(1)}/100)',
   );
 

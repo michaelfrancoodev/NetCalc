@@ -22,8 +22,11 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Preload history cache
-  await LocalStorage.loadHistory();
+  // Preload both history and favorites caches so first access is instant
+  await Future.wait([
+    LocalStorage.loadHistory(),
+    LocalStorage.loadFavorites(),
+  ]);
 
   runApp(const NetCalcProApp());
 }

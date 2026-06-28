@@ -98,8 +98,14 @@ class _SplashScreenState extends State<SplashScreen>
           Image.asset(
             'assets/images/bg_background.png',
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => const Center(
-              child: Icon(Icons.calculate_rounded, color: Colors.white12, size: 100),
+            errorBuilder: (context, error, stackTrace) => Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFF1F4FB), Color(0xFFE8EDFF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
             ),
           ),
           

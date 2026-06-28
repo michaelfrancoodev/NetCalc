@@ -306,36 +306,43 @@ class _CalculatorScreenState extends State<CalculatorScreen>
           ),
         ),
         const Spacer(),
-        _circleIcon(Icons.search_rounded, () {}),
         _circleIcon(
           Icons.history_rounded,
-              () => Navigator.push(context,
+          () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const HistoryScreen())),
+          tooltip: 'History',
         ),
-        _circleIcon(Icons.more_vert_rounded, () {}),
+        _circleIcon(
+          Icons.star_outline_rounded,
+          () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const FavoritesScreen())),
+          tooltip: 'Favorites',
+        ),
       ],
     ),
   );
 
-  Widget _circleIcon(IconData icon, VoidCallback onTap) => Container(
-    margin: const EdgeInsets.only(left: 6),
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      shape: BoxShape.circle,
-      boxShadow: [
-        BoxShadow(
-            color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
-      ],
-    ),
-    child: IconButton(
-      icon: Icon(icon, color: AppTheme.textDark, size: 20),
-      onPressed: onTap,
-      splashRadius: 20,
-      padding: EdgeInsets.zero,
-      constraints:
-      const BoxConstraints(minWidth: 36, minHeight: 36),
-    ),
-  );
+  Widget _circleIcon(IconData icon, VoidCallback onTap, {String tooltip = ''}) =>
+      Tooltip(
+        message: tooltip,
+        child: Container(
+          margin: const EdgeInsets.only(left: 6),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
+            ],
+          ),
+          child: IconButton(
+            icon: Icon(icon, color: AppTheme.textDark, size: 20),
+            onPressed: onTap,
+            splashRadius: 20,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          ),
+        ),
+      );
 
   Widget _buildDisplayCard() => Container(
     margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -368,7 +375,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
             _chip('$_precision Digits', () {}),
           ],
         ),
-        const Spacer(),
+        const SizedBox(height: 8),
         SingleChildScrollView(
           controller: _inputScroll,
           scrollDirection: Axis.horizontal,
@@ -393,18 +400,14 @@ class _CalculatorScreenState extends State<CalculatorScreen>
                 fontSize: 48,
                 fontWeight: FontWeight.w700,
                 color: (_result.contains('Error') ||
-                    _result.contains('Invalid'))
+                    _result.contains('Invalid') ||
+                    _result.contains('Division') ||
+                    _result.contains('Syntax'))
                     ? AppTheme.textPink
                     : AppTheme.textDark,
               ),
             ),
           ),
-        ),
-        Text(
-          '= $_result',
-          style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.textGrey.withOpacity(0.4)),
         ),
       ],
     ),

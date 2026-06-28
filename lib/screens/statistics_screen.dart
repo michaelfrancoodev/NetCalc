@@ -60,6 +60,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   Map<String, String> _computeStats(List<double> d) {
     final n = d.length;
+    if (n == 0) return {'Error': 'No data'};
     final sum = d.reduce((a, b) => a + b);
     final mean = sum / n;
     final sorted = [...d]..sort();

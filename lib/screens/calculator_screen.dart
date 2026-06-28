@@ -251,6 +251,41 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     });
   }
 
+  void _pickPrecision() {
+    showDialog<int>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text('Decimal Precision',
+            style: TextStyle(color: AppTheme.textDark)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(14, (i) {
+            final v = i + 2;
+            return RadioListTile<int>(
+              dense: true,
+              title: Text('$v digits', style: const TextStyle(fontSize: 14)),
+              value: v,
+              groupValue: _precision,
+              activeColor: AppTheme.primaryBlue,
+              onChanged: (val) async {
+                if (val != null) {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setInt('precision', val);
+                  if (!mounted) return;
+                  setState(() => _precision = val);
+                  if (_input.isNotEmpty) _livePreview();
+                }
+                if (mounted) Navigator.pop(ctx);
+              },
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -379,7 +414,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
               _livePreview();
             }),
             const SizedBox(width: 8),
-            _chip('$_precision Digits', () {}),
+            _chip('$_precision Digits', _pickPrecision),
             const Spacer(),
             // Save to Favorites — only shown after a calculation
             if (_justCalculated)

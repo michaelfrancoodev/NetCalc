@@ -328,25 +328,52 @@ class _FloatingElementState extends State<_FloatingElement> with SingleTickerPro
   }
 }
 
-class FadeInAnimation extends StatelessWidget {
+class FadeInAnimation extends StatefulWidget {
   final Widget child;
   final int delay;
   final double slideOffset;
   const FadeInAnimation({super.key, required this.child, required this.delay, this.slideOffset = 20.0});
 
   @override
+  State<FadeInAnimation> createState() => _FadeInAnimationState();
+}
+
+class _FadeInAnimationState extends State<FadeInAnimation>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic);
+    // Start after the specified delay
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) _ctrl.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 800),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, child) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (context, child) {
         return Transform.translate(
-          offset: Offset(0, slideOffset * (1 - value)),
-          child: Opacity(opacity: value, child: child),
+          offset: Offset(0, widget.slideOffset * (1 - _anim.value)),
+          child: Opacity(opacity: _anim.value, child: child),
         );
       },
-      child: child,
+      child: widget.child,
     );
   }
 }

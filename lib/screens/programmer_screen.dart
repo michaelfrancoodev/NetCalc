@@ -278,12 +278,13 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
           if (hexExtra) ...[
             _pRow(['A', 'B', 'C', 'D', 'E']),
             _pRow(['F', '7', '8', '9', 'DEL']),
-            _pRow(['4', '5', '6', '(', ')']),
+            _pRow(['4', '5', '6', '1', '2']),
+            _pRow(['3', '0', '(', ')', '=']),
           ] else ...[
-            _pRow(['7', '8', '9', 'DEL', '=']),
-            _pRow(['4', '5', '6', '(', ')']),
+            _pRow(['7', '8', '9', '(', ')']),
+            _pRow(['4', '5', '6', 'DEL', 'AC']),
           ],
-          _pRow(['1', '2', '3', '0', '=']),
+          if (!hexExtra) _pRow(['1', '2', '3', '0', '=']),
         ],
       ),
     );

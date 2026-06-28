@@ -36,6 +36,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _deleteAt(int index) async {
     HapticFeedback.lightImpact();
     await LocalStorage.removeHistoryAt(index);
+    if (!mounted) return;
     setState(() => _entries.removeAt(index));
   }
 

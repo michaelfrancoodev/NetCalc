@@ -103,6 +103,7 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
               case 'XOR':  _value = (a ^ b) & _mask; break;
               case 'NAND': _value = (~(a & b)) & _mask; break;
               case 'NOR':  _value = (~(a | b)) & _mask; break;
+              case 'MOD':  _value = b != 0 ? a % b : 0; break;
             }
             _operand1 = null;
             _pendingOp = null;

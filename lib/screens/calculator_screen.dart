@@ -978,9 +978,10 @@ String sanitizeExpr(String raw, String prevAns) {
       .replaceAll('π', 'pi')
       .replaceAll('Ans', 'ANS');
 
-  // Replace standalone 'e' (not part of a word) with its numeric value
+  // Replace standalone 'e' used as Euler's number — but NOT when it is
+  // part of scientific notation like 1e10 or 2.5e-3 (digit before e).
   s = s.replaceAllMapped(
-    RegExp(r'(?<![a-zA-Z])e(?![a-zA-Z(])'),
+    RegExp(r'(?<!\d)(?<![a-zA-Z])e(?![a-zA-Z(0-9\+\-])'),
         (_) => '(${math.e})',
   );
 
@@ -990,8 +991,8 @@ String sanitizeExpr(String raw, String prevAns) {
   // Factorial: n! → computed value using double to support large n
   s = s.replaceAllMapped(RegExp(r'(\d+)!'), (m) {
     final n = int.parse(m.group(1)!);
-    if (n > 170) return 'Infinity'; // double.infinity territory
     if (n < 0) return '0';
+    if (n > 170) return '(1/0)'; // triggers division-by-zero path → ∞
     double f = 1;
     for (int i = 2; i <= n; i++) f *= i;
     return f.toStringAsFixed(0);

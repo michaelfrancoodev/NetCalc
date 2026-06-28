@@ -24,23 +24,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _load() async {
-    final p = await SharedPreferences.getInstance();
-    setState(() {
-      _angleMode = p.getString('angle_mode') ?? 'DEG';
-      _precision = p.getInt('precision') ?? 10;
-      _haptic = p.getBool('haptic') ?? true;
-      _sound = p.getBool('sound') ?? false;
-      _numberFormat = p.getString('number_format') ?? 'US (1,000.00)';
-    });
+    try {
+      final p = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      setState(() {
+        _angleMode    = p.getString('angle_mode')    ?? 'DEG';
+        _precision    = p.getInt('precision')         ?? 10;
+        _haptic       = p.getBool('haptic')           ?? true;
+        _sound        = p.getBool('sound')            ?? false;
+        _numberFormat = p.getString('number_format')  ?? 'US (1,000.00)';
+      });
+    } catch (_) {
+      // SharedPreferences unavailable — keep defaults silently
+    }
   }
 
   Future<void> _save() async {
-    final p = await SharedPreferences.getInstance();
-    await p.setString('angle_mode', _angleMode);
-    await p.setInt('precision', _precision);
-    await p.setBool('haptic', _haptic);
-    await p.setBool('sound', _sound);
-    await p.setString('number_format', _numberFormat);
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setString('angle_mode',    _angleMode);
+      await p.setInt('precision',         _precision);
+      await p.setBool('haptic',           _haptic);
+      await p.setBool('sound',            _sound);
+      await p.setString('number_format',  _numberFormat);
+    } catch (_) {
+      // Persist failure is non-fatal — UI already reflects latest state
+    }
   }
 
   @override
@@ -175,7 +184,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     const SizedBox(height: 16),
 
-                    // ── About ──────────────────────────────────────────────
+                    // ── About ──────────────────────────────────────���───────
                     _header('About'),
                     _card([
                       _infoTile(Icons.info_outline_rounded, Colors.black45,

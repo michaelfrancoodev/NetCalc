@@ -30,17 +30,22 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
   }
 
   Future<void> _load() async {
-    final p = await SharedPreferences.getInstance();
-    setState(() {
-      _buttonShape = p.getString('button_shape') ?? 'Rounded';
-      _accentIndex = p.getInt('accent_index') ?? 0;
-    });
+    try {
+      final p = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      setState(() {
+        _buttonShape = p.getString('button_shape') ?? 'Rounded';
+        _accentIndex = p.getInt('accent_index') ?? 0;
+      });
+    } catch (_) {}
   }
 
   Future<void> _save() async {
-    final p = await SharedPreferences.getInstance();
-    await p.setString('button_shape', _buttonShape);
-    await p.setInt('accent_index', _accentIndex);
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setString('button_shape', _buttonShape);
+      await p.setInt('accent_index', _accentIndex);
+    } catch (_) {}
   }
 
   @override

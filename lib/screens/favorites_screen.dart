@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../database/local_storage.dart';
 import '../models/favorite_model.dart';
 import '../theme/app_theme.dart';
+import 'calculator_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
   final void Function(String expression)? onReuse;
@@ -200,6 +201,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           if (widget.onReuse != null) {
             widget.onReuse!(e.expression);
             Navigator.pop(context);
+          } else {
+            // Navigate to calculator and load the expression directly
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    CalculatorScreen(initialExpression: e.expression),
+              ),
+            );
           }
         },
         child: Container(

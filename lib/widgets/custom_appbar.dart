@@ -25,7 +25,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: showBack
           ? IconButton(
               icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: AppTheme.textWhite, size: 20),
+                  color: AppTheme.textDark, size: 20),
               onPressed: () => Navigator.pop(context),
             )
           : null,
@@ -33,7 +33,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: AppTheme.textWhite)),
+              color: AppTheme.textDark)),
       actions: actions,
     );
   }

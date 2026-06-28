@@ -4,6 +4,7 @@ import '../database/local_storage.dart';
 import '../models/history_model.dart';
 import '../theme/app_theme.dart';
 import 'calculator_screen.dart';
+import 'result_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -132,7 +133,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           color: AppTheme.textGrey, size: 14),
                       const SizedBox(width: 6),
                       Text(
-                        'Swipe left to delete  •  Tap to reuse',
+                        'Swipe left to delete  •  Tap to reuse  •  Long-press for detail',
                         style: TextStyle(
                             fontSize: 11,
                             color: Colors.black.withOpacity(0.3)),
@@ -201,6 +202,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
       onDismissed: (_) => _deleteAt(index),
       child: GestureDetector(
         onTap: () => _reuseEntry(e),
+        onLongPress: () {
+          HapticFeedback.mediumImpact();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ResultScreen(
+                expression: e.expression,
+                result: e.result,
+              ),
+            ),
+          );
+        },
         child: Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding:

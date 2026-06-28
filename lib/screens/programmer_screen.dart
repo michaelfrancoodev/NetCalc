@@ -111,12 +111,10 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
           }
           break;
         case 'MOD':
-          if (_value != 0) {
-            _parse();
-            _operand1 = _value;
-            _pendingOp = 'MOD';
-            _input = '';
-          }
+          _parse();
+          _operand1 = _value;
+          _pendingOp = 'MOD';
+          _input = '';
           break;
         default:
           _input += l;
@@ -281,7 +279,7 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
             _pRow(['4', '5', '6', '1', '2']),
             _pRow(['3', '0', '(', ')', '=']),
           ] else ...[
-            _pRow(['7', '8', '9', '(', ')']),
+            _pRow(['7', '8', '9', 'LSH', 'RSH']),
             _pRow(['4', '5', '6', 'DEL', 'AC']),
           ],
           if (!hexExtra) _pRow(['1', '2', '3', '0', '=']),

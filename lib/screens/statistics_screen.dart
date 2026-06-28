@@ -133,24 +133,34 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     }
     setState(() {
       try {
-        _combResult = _ncr(n, r).toString();
-        _permResult = _npr(n, r).toString();
+        _combResult = _ncrStr(n, r);
+        _permResult = _nprStr(n, r);
       } catch (_) {
-        _combResult = 'Overflow';
-        _permResult = 'Overflow';
+        _combResult = 'Error';
+        _permResult = 'Error';
       }
     });
   }
 
-  int _fact(int n) {
-    if (n <= 1) return 1;
-    int f = 1;
-    for (int i = 2; i <= n; i++) f *= i;
+  BigInt _fact(int n) {
+    if (n <= 1) return BigInt.one;
+    BigInt f = BigInt.one;
+    for (int i = 2; i <= n; i++) f *= BigInt.from(i);
     return f;
   }
 
-  int _ncr(int n, int r) => _fact(n) ~/ (_fact(r) * _fact(n - r));
-  int _npr(int n, int r) => _fact(n) ~/ _fact(n - r);
+  // Returns result as String to handle arbitrarily large numbers gracefully
+  String _ncrStr(int n, int r) {
+    final num = _fact(n);
+    final den = _fact(r) * _fact(n - r);
+    return (num ~/ den).toString();
+  }
+
+  String _nprStr(int n, int r) {
+    final num = _fact(n);
+    final den = _fact(n - r);
+    return (num ~/ den).toString();
+  }
 
   @override
   Widget build(BuildContext context) {

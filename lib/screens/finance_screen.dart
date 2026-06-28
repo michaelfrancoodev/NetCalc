@@ -65,7 +65,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 6)
                         ],
                       ),
@@ -162,7 +162,7 @@ class _FinanceForm extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.04), blurRadius: 12)
+                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
                 ],
               ),
               child: Column(
@@ -223,7 +223,7 @@ class _FinanceForm extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.04), blurRadius: 12)
+                        color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
                   ],
                 ),
                 child: Column(

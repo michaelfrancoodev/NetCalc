@@ -239,10 +239,10 @@ class _UnitConversionScreenState extends State<UnitConversionScreen>
                         decoration: BoxDecoration(
                           gradient: AppTheme.displayGradient,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppTheme.primaryBlue.withOpacity(0.05)),
+                          border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.05)),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -317,7 +317,7 @@ class _GlassInput extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withOpacity(0.05)),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
       ),
       child: TextField(
         controller: controller,
@@ -325,7 +325,7 @@ class _GlassInput extends StatelessWidget {
         style: const TextStyle(color: AppTheme.textDark, fontSize: 18),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.black.withOpacity(0.2), fontSize: 16),
+          hintStyle: TextStyle(color: Colors.black.withValues(alpha: 0.2), fontSize: 16),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
@@ -352,7 +352,7 @@ class _GlassDropdown extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withOpacity(0.05)),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: DropdownButtonHideUnderline(

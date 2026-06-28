@@ -100,12 +100,12 @@ class _HelpCardState extends State<_HelpCard> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _expanded
-              ? AppTheme.primaryBlue.withOpacity(0.25)
-              : Colors.black.withOpacity(0.06),
+              ? AppTheme.primaryBlue.withValues(alpha: 0.25)
+              : Colors.black.withValues(alpha: 0.06),
         ),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 3))
         ],

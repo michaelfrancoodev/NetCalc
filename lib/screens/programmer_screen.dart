@@ -159,7 +159,7 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.04), blurRadius: 16)
+                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 16)
                 ],
               ),
               child: Column(
@@ -199,7 +199,7 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.06),
+                              color: Colors.black.withValues(alpha: 0.06),
                               blurRadius: 4)
                         ],
                       ),
@@ -298,13 +298,13 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isOp(l)
-                        ? AppTheme.primaryBlue.withOpacity(0.1)
+                        ? AppTheme.primaryBlue.withValues(alpha: 0.1)
                         : AppTheme.surface,
                     foregroundColor:
                         _isOp(l) ? AppTheme.primaryBlue : AppTheme.textDark,
                     elevation: 0,
-                    disabledBackgroundColor: Colors.grey.withOpacity(0.05),
-                    disabledForegroundColor: Colors.grey.withOpacity(0.3),
+                    disabledBackgroundColor: Colors.grey.withValues(alpha: 0.05),
+                    disabledForegroundColor: Colors.grey.withValues(alpha: 0.3),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14)),
                     padding: EdgeInsets.zero,

@@ -90,7 +90,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10)
                         ],
                       ),
@@ -117,7 +117,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                                 boxShadow: sel
                                     ? [
                                         BoxShadow(
-                                            color: _accents[i].withOpacity(0.5),
+                                            color: _accents[i].withValues(alpha: 0.5),
                                             blurRadius: 8)
                                       ]
                                     : [],
@@ -143,7 +143,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10)
                         ],
                       ),
@@ -198,7 +198,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10)
                         ],
                       ),
@@ -224,7 +224,7 @@ class _AppearanceScreenState extends State<AppearanceScreen> {
                                             : 16),
                                 boxShadow: [
                                   BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
+                                      color: Colors.black.withValues(alpha: 0.06),
                                       blurRadius: 8,
                                       offset: const Offset(0, 4))
                                 ],

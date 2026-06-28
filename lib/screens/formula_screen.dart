@@ -168,7 +168,7 @@ class _FormulaScreenState extends State<FormulaScreen>
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.04), blurRadius: 10)
+                  color: Colors.black.withValues(alpha: 0.04), blurRadius: 10)
             ],
           ),
           child: Column(
@@ -180,7 +180,7 @@ class _FormulaScreenState extends State<FormulaScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: _catColor(f.category).withOpacity(0.1),
+                      color: _catColor(f.category).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(f.category,
@@ -192,7 +192,7 @@ class _FormulaScreenState extends State<FormulaScreen>
                   const Spacer(),
                   Icon(Icons.arrow_forward_ios_rounded,
                       size: 14,
-                      color: AppTheme.textGrey.withOpacity(0.5)),
+                      color: AppTheme.textGrey.withValues(alpha: 0.5)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -241,7 +241,7 @@ class _FormulaScreenState extends State<FormulaScreen>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                      color: AppTheme.textGrey.withOpacity(0.3),
+                      color: AppTheme.textGrey.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(2))),
             ),
             const SizedBox(height: 20),
@@ -253,7 +253,7 @@ class _FormulaScreenState extends State<FormulaScreen>
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.06),
+                color: AppTheme.primaryBlue.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Text(f.formula,
@@ -269,7 +269,7 @@ class _FormulaScreenState extends State<FormulaScreen>
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppTheme.textGrey.withOpacity(0.7))),
+                    color: AppTheme.textGrey.withValues(alpha: 0.7))),
             const SizedBox(height: 4),
             Text(
                 f.description.isEmpty
@@ -282,7 +282,7 @@ class _FormulaScreenState extends State<FormulaScreen>
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.textGrey.withOpacity(0.7))),
+                      color: AppTheme.textGrey.withValues(alpha: 0.7))),
               const SizedBox(height: 8),
               ...f.variables.entries.map((e) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),

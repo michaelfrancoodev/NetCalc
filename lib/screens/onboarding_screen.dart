@@ -69,7 +69,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: TextButton(
                         onPressed: _completeOnboarding,
                         style: TextButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.6),
+                          backgroundColor: Colors.white.withValues(alpha: 0.6),
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                         ),
@@ -123,7 +123,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryBlue.withOpacity(0.3),
+                                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                                 blurRadius: 15,
                                 offset: const Offset(0, 8),
                               ),
@@ -188,11 +188,11 @@ class _OnboardingPage extends StatelessWidget {
               height: MediaQuery.of(context).size.height * 0.35,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 40,
                   )
                 ],

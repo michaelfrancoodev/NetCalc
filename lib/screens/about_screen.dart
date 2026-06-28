@@ -167,7 +167,7 @@ class AboutScreen extends StatelessWidget {
                           Text(
                             'Designed for Privacy & Precision',
                             style: TextStyle(
-                              color: AppTheme.textGrey.withOpacity(0.6),
+                              color: AppTheme.textGrey.withValues(alpha: 0.6),
                               fontSize: 11,
                               fontStyle: FontStyle.italic,
                             ),
@@ -176,7 +176,7 @@ class AboutScreen extends StatelessWidget {
                           Text(
                             '© 2025 NetCalc Pro. All rights reserved.',
                             style: TextStyle(
-                              color: AppTheme.textGrey.withOpacity(0.4),
+                              color: AppTheme.textGrey.withValues(alpha: 0.4),
                               fontSize: 10,
                             ),
                           ),
@@ -200,7 +200,7 @@ class AboutScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4))
           ],

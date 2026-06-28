@@ -24,7 +24,7 @@ class HelpScreen extends StatelessWidget {
     {'q': 'Live preview', 'a': 'The result updates in real-time as you type whenever the expression is valid.'},
     {'q': 'Implicit multiplication', 'a': 'You can omit × in common cases: 2sin(30) = 1, 3pi ≈ 9.42, 2(3+1) = 8.'},
     {'q': 'History', 'a': 'Every successful calculation is saved automatically. Access it from the History button in the top bar or the side drawer.'},
-    {'q': 'Favorites (★)', 'a': 'Tap the star in the result screen to save an expression. Access saved entries from the Favorites item in the side drawer.'},
+    {'q': 'Favorites (★)', 'a': 'After pressing =, a star appears in the top-right of the display card. Tap it to save the result. Access saved entries via the Favorites button in the top bar or the side drawer. Tap any saved favorite to reload it in the calculator.'},
     {'q': 'Scientific Calculator', 'a': 'Access via the drawer for advanced functions: trig, hyperbolic, log₂, RND, φ, and more, with DEG/RAD/GRAD mode.'},
     {'q': 'Finance Tools', 'a': 'Access via the drawer. Includes Loan EMI, Compound Interest, VAT, Discount, Profit/Loss, Mortgage, SIP, ROI, and more.'},
     {'q': 'Unit Converter', 'a': 'Access from the bottom nav or drawer. Converts Length, Weight, Temperature, Volume, Speed, Area, Data, Time, Pressure, and Energy.'},

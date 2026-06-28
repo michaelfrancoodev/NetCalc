@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../widgets/glass_calc_button.dart';
 import '../models/history_model.dart';
+import '../models/favorite_model.dart';
 import '../database/local_storage.dart';
 import 'history_screen.dart';
 import 'unit_conversion_screen.dart';
@@ -37,6 +38,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   String _angleMode = 'DEG';
   int _precision = 10;
   bool _justCalculated = false;
+  bool _isFav = false;
   int _navIndex = 0;
 
   final ScrollController _inputScroll = ScrollController();
@@ -69,11 +71,14 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _angleMode = prefs.getString('angle_mode') ?? 'DEG';
-      _precision = prefs.getInt('precision') ?? 10;
-    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!mounted) return;
+      setState(() {
+        _angleMode = prefs.getString('angle_mode') ?? 'DEG';
+        _precision = prefs.getInt('precision') ?? 10;
+      });
+    } catch (_) {}
   }
 
   void _onTap(String val) {
@@ -84,6 +89,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
           _input = '';
           _result = '0';
           _justCalculated = false;
+          _isFav = false;
           break;
         case 'DEL':
           if (_input.isNotEmpty) {
@@ -202,13 +208,15 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       }
 
       final f = _fmt(v);
+      final expr = _input;
       LocalStorage.addHistory(
-          HistoryEntry(expression: _input, result: f, timestamp: DateTime.now()));
+          HistoryEntry(expression: expr, result: f, timestamp: DateTime.now()));
       _fadeCtrl.reset();
       setState(() {
         _result = f;
         _prevAns = f;
         _justCalculated = true;
+        _isFav = LocalStorage.isFavorite(expr, f);
       });
       _fadeCtrl.forward();
     } catch (e) {
@@ -361,7 +369,6 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             _chip(_angleMode, () {
               setState(() {
@@ -373,6 +380,33 @@ class _CalculatorScreenState extends State<CalculatorScreen>
             }),
             const SizedBox(width: 8),
             _chip('$_precision Digits', () {}),
+            const Spacer(),
+            // Save to Favorites — only shown after a calculation
+            if (_justCalculated)
+              GestureDetector(
+                onTap: () async {
+                  if (_isFav) return; // already saved
+                  final entry = FavoriteEntry(
+                    expression: _input,
+                    result: _result,
+                    savedAt: DateTime.now(),
+                  );
+                  await LocalStorage.addFavorite(entry);
+                  HapticFeedback.lightImpact();
+                  if (mounted) setState(() => _isFav = true);
+                },
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: Icon(
+                    _isFav ? Icons.star_rounded : Icons.star_outline_rounded,
+                    key: ValueKey(_isFav),
+                    color: _isFav
+                        ? const Color(0xFFFFB800)
+                        : AppTheme.textGrey,
+                    size: 26,
+                  ),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 8),

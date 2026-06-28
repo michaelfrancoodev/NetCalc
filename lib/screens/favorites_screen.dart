@@ -125,7 +125,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       Text('Swipe left to delete  •  Tap to reuse',
                           style: TextStyle(
                               fontSize: 11,
-                              color: Colors.black.withOpacity(0.3))),
+                              color: Colors.black.withValues(alpha: 0.3))),
                     ],
                   ),
                 ),
@@ -160,18 +160,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.star_border_rounded,
-              size: 60, color: Colors.black.withOpacity(0.1)),
+              size: 60, color: Colors.black.withValues(alpha: 0.1)),
           const SizedBox(height: 14),
           Text('No favorites yet',
               style: TextStyle(
                   fontSize: 16,
-                  color: Colors.black.withOpacity(0.4))),
+                  color: Colors.black.withValues(alpha: 0.4))),
           const SizedBox(height: 6),
           Text('Tap the star icon on the calculator\nto save a result.',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 12,
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   height: 1.5)),
         ],
       ),
@@ -187,7 +187,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         padding: const EdgeInsets.only(right: 20),
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
-          color: AppTheme.neonPink.withOpacity(0.1),
+          color: AppTheme.neonPink.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.delete_outline_rounded,
@@ -222,10 +222,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-                color: Colors.black.withOpacity(0.05)),
+                color: Colors.black.withValues(alpha: 0.05)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               )
@@ -234,7 +234,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           child: Row(
             children: [
               Icon(Icons.star_rounded,
-                  color: AppTheme.neonCyan.withOpacity(0.7),
+                  color: AppTheme.neonCyan.withValues(alpha: 0.7),
                   size: 18),
               const SizedBox(width: 12),
               Expanded(
@@ -261,7 +261,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               Text(_formatTime(e.savedAt),
                   style: TextStyle(
                       fontSize: 11,
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       fontWeight: FontWeight.w400)),
             ],
           ),

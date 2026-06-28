@@ -29,8 +29,16 @@ class _MatrixScreenState extends State<MatrixScreen> {
     // Dispose existing before recreating
     if (disposeExisting) {
       try {
-        for (var row in _aCtrl) for (var c in row) c.dispose();
-        for (var row in _bCtrl) for (var c in row) c.dispose();
+        for (var row in _aCtrl) {
+          for (var c in row) {
+            c.dispose();
+          }
+        }
+        for (var row in _bCtrl) {
+          for (var c in row) {
+            c.dispose();
+          }
+        }
       } catch (_) {}
     }
     _aCtrl = List.generate(
@@ -100,7 +108,9 @@ class _MatrixScreenState extends State<MatrixScreen> {
     final r = a.length, m = b.length, c = b[0].length;
     return List.generate(r, (i) => List.generate(c, (j) {
           double s = 0;
-          for (int k = 0; k < m; k++) s += a[i][k] * b[k][j];
+          for (int k = 0; k < m; k++) {
+            s += a[i][k] * b[k][j];
+          }
           return s;
         }));
   }
@@ -130,8 +140,16 @@ class _MatrixScreenState extends State<MatrixScreen> {
 
   @override
   void dispose() {
-    for (var row in _aCtrl) for (var c in row) c.dispose();
-    for (var row in _bCtrl) for (var c in row) c.dispose();
+    for (var row in _aCtrl) {
+      for (var c in row) {
+        c.dispose();
+      }
+    }
+    for (var row in _bCtrl) {
+      for (var c in row) {
+        c.dispose();
+      }
+    }
     super.dispose();
   }
 
@@ -175,7 +193,7 @@ class _MatrixScreenState extends State<MatrixScreen> {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 6)
                             ],
                           ),
@@ -228,7 +246,7 @@ class _MatrixScreenState extends State<MatrixScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                            color: AppTheme.primaryBlue.withOpacity(0.3),
+                            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 6))
                       ]),
@@ -251,9 +269,9 @@ class _MatrixScreenState extends State<MatrixScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppTheme.textPink.withOpacity(0.1),
+                    color: AppTheme.textPink.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppTheme.textPink.withOpacity(0.3)),
+                    border: Border.all(color: AppTheme.textPink.withValues(alpha: 0.3)),
                   ),
                   child: Text(_error!,
                       style: const TextStyle(
@@ -270,7 +288,7 @@ class _MatrixScreenState extends State<MatrixScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withOpacity(0.04), blurRadius: 12)
+                          color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
                     ],
                   ),
                   child: Column(
@@ -335,7 +353,7 @@ class _MatrixScreenState extends State<MatrixScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.04), blurRadius: 12)
+              color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
         ],
       ),
       child: Column(

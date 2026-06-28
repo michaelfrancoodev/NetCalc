@@ -129,15 +129,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'Clear History',
                           'This will permanently delete all calculation history.',
                           () async {
+                            final messenger = ScaffoldMessenger.of(context);
                             await LocalStorage.clearHistory();
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('History cleared'),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            }
+                            if (!mounted) return;
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text('History cleared'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -150,15 +150,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'Clear Favorites',
                           'This will permanently delete all saved favorites.',
                           () async {
+                            final messenger = ScaffoldMessenger.of(context);
                             await LocalStorage.clearFavorites();
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Favorites cleared'),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            }
+                            if (!mounted) return;
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text('Favorites cleared'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -168,16 +168,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Icons.refresh_rounded,
                         AppTheme.primaryPurple,
                         () async {
+                          final messenger = ScaffoldMessenger.of(context);
                           final prefs = await SharedPreferences.getInstance();
                           await prefs.setBool('onboarding_completed', false);
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Onboarding reset. Restart the app.'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          }
+                          if (!mounted) return;
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text('Onboarding reset. Restart the app.'),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
                         },
                       ),
                     ]),
@@ -224,7 +224,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4))
           ],
@@ -239,7 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
+            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: AppTheme.primaryBlue, size: 20),
@@ -247,7 +247,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(label,
             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
         trailing: Switch.adaptive(
-            value: val, onChanged: onChange, activeColor: AppTheme.primaryBlue),
+            value: val,
+            onChanged: onChange,
+            activeThumbColor: AppTheme.primaryBlue),
       );
 
   Widget _dropdownTile(String label, String val, List<String> options,
@@ -305,7 +307,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -325,7 +327,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
+            color: iconColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: iconColor, size: 20),

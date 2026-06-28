@@ -138,7 +138,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         'Swipe left to delete  •  Tap to reuse  •  Long-press for detail',
                         style: TextStyle(
                             fontSize: 11,
-                            color: Colors.black.withOpacity(0.3)),
+                            color: Colors.black.withValues(alpha: 0.3)),
                       ),
                     ],
                   ),
@@ -171,17 +171,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.history_rounded,
-                size: 60, color: Colors.black.withOpacity(0.1)),
+                size: 60, color: Colors.black.withValues(alpha: 0.1)),
             const SizedBox(height: 14),
             Text('No history yet',
                 style: TextStyle(
                     fontSize: 16,
-                    color: Colors.black.withOpacity(0.4))),
+                    color: Colors.black.withValues(alpha: 0.4))),
             const SizedBox(height: 6),
             Text('Calculations will appear here.',
                 style: TextStyle(
                     fontSize: 12,
-                    color: Colors.black.withOpacity(0.3))),
+                    color: Colors.black.withValues(alpha: 0.3))),
           ],
         ),
       );
@@ -195,7 +195,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         padding: const EdgeInsets.only(right: 20),
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
-          color: AppTheme.neonPink.withOpacity(0.1),
+          color: AppTheme.neonPink.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.delete_outline_rounded,
@@ -223,10 +223,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.black.withOpacity(0.05)),
+            border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               )
@@ -258,7 +258,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Text(_timeLabel(e.timestamp),
                   style: TextStyle(
                       fontSize: 11,
-                      color: Colors.black.withOpacity(0.3))),
+                      color: Colors.black.withValues(alpha: 0.3))),
             ],
           ),
         ),

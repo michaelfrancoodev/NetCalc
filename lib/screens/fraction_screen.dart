@@ -146,7 +146,7 @@ class _FractionScreenState extends State<FractionScreen> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.3),
+                          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 6))
                     ],
@@ -179,7 +179,7 @@ class _FractionScreenState extends State<FractionScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.04), blurRadius: 12)
+              color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
         ],
       ),
       child: Column(
@@ -244,7 +244,7 @@ class _FractionScreenState extends State<FractionScreen> {
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.05), blurRadius: 8)
+                      color: Colors.black.withValues(alpha: 0.05), blurRadius: 8)
                 ],
               ),
               child: Center(
@@ -267,7 +267,7 @@ class _FractionScreenState extends State<FractionScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04), blurRadius: 12)
+                color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
           ],
         ),
         child: Column(

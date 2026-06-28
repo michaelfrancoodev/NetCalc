@@ -66,7 +66,7 @@ class AppTheme {
   );
 
   static LinearGradient glassButton(Color tint) => LinearGradient(
-    colors: [tint.withOpacity(0.12), tint.withOpacity(0.04)],
+    colors: [tint.withValues(alpha: 0.12), tint.withValues(alpha: 0.04)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

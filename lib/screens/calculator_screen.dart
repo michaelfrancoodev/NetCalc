@@ -259,28 +259,32 @@ class _CalculatorScreenState extends State<CalculatorScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: const Text('Decimal Precision',
             style: TextStyle(color: AppTheme.textDark)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(14, (i) {
-            final v = i + 2;
-            return RadioListTile<int>(
-              dense: true,
-              title: Text('$v digits', style: const TextStyle(fontSize: 14)),
-              value: v,
-              groupValue: _precision,
-              activeColor: AppTheme.primaryBlue,
-              onChanged: (val) async {
-                if (val != null) {
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(14, (i) {
+              final v = i + 2;
+              final selected = v == _precision;
+              return ListTile(
+                dense: true,
+                title: Text('$v digits', style: const TextStyle(fontSize: 14)),
+                trailing: selected
+                    ? const Icon(Icons.check_rounded,
+                        color: AppTheme.primaryBlue, size: 20)
+                    : null,
+                onTap: () async {
+                  final navigator = Navigator.of(ctx);
                   final prefs = await SharedPreferences.getInstance();
-                  await prefs.setInt('precision', val);
+                  await prefs.setInt('precision', v);
                   if (!mounted) return;
-                  setState(() => _precision = val);
+                  setState(() => _precision = v);
                   if (_input.isNotEmpty) _livePreview();
-                }
-                if (mounted) Navigator.pop(ctx);
-              },
-            );
-          }),
+                  navigator.pop();
+                },
+              );
+            }),
+          ),
         ),
       ),
     );
@@ -395,7 +399,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       borderRadius: BorderRadius.circular(28),
       boxShadow: [
         BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, 10))
       ],
@@ -488,7 +492,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       padding:
       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withOpacity(0.06),
+        color: AppTheme.primaryBlue.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -640,7 +644,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
             const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
               color: active
-                  ? AppTheme.primaryBlue.withOpacity(0.1)
+                  ? AppTheme.primaryBlue.withValues(alpha: 0.1)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
             ),
@@ -648,7 +652,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
               icon,
               color: active
                   ? AppTheme.primaryBlue
-                  : AppTheme.textGrey.withOpacity(0.5),
+                  : AppTheme.textGrey.withValues(alpha: 0.5),
               size: 24,
             ),
           ),
@@ -660,7 +664,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
               fontWeight: FontWeight.w600,
               color: active
                   ? AppTheme.primaryBlue
-                  : AppTheme.textGrey.withOpacity(0.5),
+                  : AppTheme.textGrey.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -936,7 +940,9 @@ class _ExprParser {
       if (_src[_pos] == 'e' || _src[_pos] == 'E') {
         _pos++;
         if (_pos < _src.length &&
-            (_src[_pos] == '+' || _src[_pos] == '-')) _pos++;
+            (_src[_pos] == '+' || _src[_pos] == '-')) {
+          _pos++;
+        }
       } else {
         _pos++;
       }
@@ -954,7 +960,9 @@ class _ExprParser {
   }
 
   void _skip() {
-    while (_pos < _src.length && _src[_pos] == ' ') _pos++;
+    while (_pos < _src.length && _src[_pos] == ' ') {
+      _pos++;
+    }
   }
 
   double _applyFn(String fn, double x) {
@@ -972,29 +980,42 @@ class _ExprParser {
       case 'cos':
         return _tidy(math.cos(val));
       case 'tan':
+        // tan is undefined at 90°, 270°, ... (cos == 0)
+        if (_tidy(math.cos(val)) == 0) throw Exception('tan undefined');
         return _tidy(math.tan(val));
       case 'asin':
+        if (x < -1 || x > 1) throw Exception('asin domain');
         final r = math.asin(x);
         return _mode == 'DEG' ? r * 180 / math.pi : r;
       case 'acos':
+        if (x < -1 || x > 1) throw Exception('acos domain');
         final r = math.acos(x);
         return _mode == 'DEG' ? r * 180 / math.pi : r;
       case 'atan':
         final r = math.atan(x);
         return _mode == 'DEG' ? r * 180 / math.pi : r;
       case 'sqrt':
+        if (x < 0) throw Exception('sqrt of negative');
         return math.sqrt(x);
       case 'cbrt':
         return math.pow(x.abs(), 1 / 3).toDouble() * (x < 0 ? -1 : 1);
       case 'log':
+        if (x <= 0) throw Exception('log domain');
         return math.log(x) / math.ln10;
       case 'ln':
+        if (x <= 0) throw Exception('ln domain');
         return math.log(x);
       case 'abs':
       case 'ABS':
         return x.abs();
       case 'exp':
         return math.exp(x);
+      case 'floor':
+        return x.floorToDouble();
+      case 'ceil':
+        return x.ceilToDouble();
+      case 'round':
+        return x.roundToDouble();
       default:
         return 0;
     }
@@ -1029,11 +1050,25 @@ String sanitizeExpr(String raw, String prevAns) {
     if (n < 0) return '0';
     if (n > 170) return '(1/0)'; // triggers division-by-zero path → ∞
     double f = 1;
-    for (int i = 2; i <= n; i++) f *= i;
+    for (int i = 2; i <= n; i++) {
+      f *= i;
+    }
     return f.toStringAsFixed(0);
   });
 
-  // Percentage: n% → (n/100) only when NOT used as MOD (not followed by a digit/letter/open-paren)
+  // Contextual percentage (Android-style): A + B% → A + (A*B/100),
+  // A - B% → A - (A*B/100). The percent is taken of the left operand.
+  // Applied repeatedly to support chains; only for + and -.
+  final pctContext = RegExp(r'(\d+\.?\d*)([+\-])(\d+\.?\d*)%(?![0-9a-zA-Z(])');
+  while (pctContext.hasMatch(s)) {
+    s = s.replaceFirstMapped(
+      pctContext,
+      (m) => '${m.group(1)}${m.group(2)}(${m.group(1)}*${m.group(3)}/100)',
+    );
+  }
+
+  // Bare percentage: n% → (n/100) only when NOT used as MOD
+  // (not followed by a digit/letter/open-paren)
   s = s.replaceAllMapped(
     RegExp(r'(\d+\.?\d*)%(?![0-9a-zA-Z(])'),
         (m) => '(${m.group(1)}/100)',

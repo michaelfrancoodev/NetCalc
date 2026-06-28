@@ -56,10 +56,6 @@ class _GlassCalcButtonState extends State<GlassCalcButton>
 
   @override
   Widget build(BuildContext context) {
-    final bool isNumber = RegExp(r'^\d$').hasMatch(widget.text) ||
-        widget.text == '.' ||
-        widget.text == '0';
-
     // Operators that get soft blue styling
     final bool isOperator = [
       '+', '-', '×', '÷',
@@ -115,12 +111,12 @@ class _GlassCalcButtonState extends State<GlassCalcButton>
               decoration: BoxDecoration(
                 color: hasGradient
                     ? null
-                    : (_isPressed ? bgColor.withOpacity(0.8) : bgColor),
+                    : (_isPressed ? bgColor.withValues(alpha: 0.8) : bgColor),
                 gradient: hasGradient ? AppTheme.accentGradient : null,
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),

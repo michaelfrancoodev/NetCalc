@@ -21,7 +21,7 @@ class _ScientificScreenState extends State<ScientificScreen>
   String _angleMode = 'DEG';
   bool _isSecond = false;
   bool _justCalculated = false;
-  int _precision = 10;
+  final int _precision = 10;
 
   late AnimationController _fadeCtrl;
   late Animation<double> _fadeAnim;
@@ -174,7 +174,9 @@ class _ScientificScreenState extends State<ScientificScreen>
       if (n < 0) return '0';
       if (n > 170) return '(1/0)';
       double f = 1;
-      for (int i = 2; i <= n; i++) f *= i;
+      for (int i = 2; i <= n; i++) {
+        f *= i;
+      }
       return f.toStringAsFixed(0);
     });
     // Auto-close unclosed parentheses
@@ -245,7 +247,7 @@ class _ScientificScreenState extends State<ScientificScreen>
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 16,
                 offset: const Offset(0, 8))
           ],
@@ -419,7 +421,9 @@ class _SciParser {
       _pos++;
       int n = base.toInt();
       double f = 1;
-      for (int i = 2; i <= n; i++) f *= i;
+      for (int i = 2; i <= n; i++) {
+        f *= i;
+      }
       return f;
     }
     return base;
@@ -515,6 +519,8 @@ class _SciParser {
   }
 
   void _skip() {
-    while (_pos < _src.length && _src[_pos] == ' ') _pos++;
+    while (_pos < _src.length && _src[_pos] == ' ') {
+      _pos++;
+    }
   }
 }

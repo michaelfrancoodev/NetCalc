@@ -12,7 +12,6 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen>
     with SingleTickerProviderStateMixin {
   final _dataCtrl = TextEditingController();
-  List<double> _data = [];
   Map<String, String> _stats = {};
 
   // nCr / nPr
@@ -53,7 +52,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       return;
     }
     setState(() {
-      _data = raw;
       _stats = _computeStats(raw);
     });
   }
@@ -77,7 +75,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
     // Mode
     final freq = <double, int>{};
-    for (var x in d) freq[x] = (freq[x] ?? 0) + 1;
+    for (var x in d) {
+      freq[x] = (freq[x] ?? 0) + 1;
+    }
     final maxFreq = freq.values.reduce(math.max);
     final modes =
         freq.entries.where((e) => e.value == maxFreq).map((e) => e.key).toList();
@@ -146,7 +146,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   BigInt _fact(int n) {
     if (n <= 1) return BigInt.one;
     BigInt f = BigInt.one;
-    for (int i = 2; i <= n; i++) f *= BigInt.from(i);
+    for (int i = 2; i <= n; i++) {
+      f *= BigInt.from(i);
+    }
     return f;
   }
 
@@ -199,7 +201,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.04), blurRadius: 12)
+                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
                 ],
               ),
               child: Column(
@@ -252,7 +254,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.04), blurRadius: 12)
+                        color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
                   ],
                 ),
                 child: Column(
@@ -292,7 +294,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.04), blurRadius: 12)
+                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
                 ],
               ),
               child: Column(
@@ -333,7 +335,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.04), blurRadius: 12)
+                        color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
                   ],
                 ),
                 child: Column(

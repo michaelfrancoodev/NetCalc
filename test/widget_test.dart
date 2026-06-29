@@ -3,6 +3,7 @@
 
 import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:netcalc/main.dart';
 import 'package:netcalc/screens/calculator_screen.dart';
 
@@ -15,10 +16,19 @@ double? eval(String expr, {String ans = ''}) => evalFull(expr, prevAns: ans);
 void main() {
   // ── Smoke test ──────────────────────────────────────────────────────────────
   testWidgets('App boots and shows splash', (WidgetTester tester) async {
+    // Provide in-memory SharedPreferences so the splash initialization
+    // (which calls SharedPreferences.getInstance) completes in the test env.
+    SharedPreferences.setMockInitialValues({});
     await tester.pumpWidget(const NetCalcProApp());
     await tester.pump();
     expect(find.text('NetCalc Pro'), findsWidgets);
-    await tester.pump(const Duration(seconds: 2));
+    // Advance past the splash timer (2.5s) then the navigation transition
+    // (500ms). We use fixed pumps rather than pumpAndSettle because the
+    // destination screen has continuous (repeating) animations that never
+    // settle, which would cause pumpAndSettle to time out.
+    await tester.pump(const Duration(milliseconds: 2500));
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump(const Duration(milliseconds: 600));
   });
 
   // ── Arithmetic ─────────────────────────────────────────────────────────────

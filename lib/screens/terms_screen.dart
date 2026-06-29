@@ -6,10 +6,13 @@ class TermsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.mainBackground),
+        decoration: BoxDecoration(gradient: isDark ? null : AppTheme.mainBackground),
         child: SafeArea(
           child: Column(
             children: [
@@ -19,21 +22,21 @@ class TermsScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: AppTheme.textDark, size: 20),
+                      icon: Icon(Icons.arrow_back_ios_new_rounded,
+                          color: textColor, size: 20),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    const Text(
+                    Text(
                       'Terms of Service',
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.textDark),
+                          color: textColor),
                     ),
                   ],
                 ),
               ),
-              const Divider(color: Colors.black12, height: 1),
+              Divider(color: isDark ? Colors.white10 : Colors.black12, height: 1),
 
               Expanded(
                 child: SingleChildScrollView(
@@ -41,12 +44,12 @@ class TermsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Terms of Use',
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.textDark),
+                            color: textColor),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -99,16 +102,20 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white70 : AppTheme.textGrey;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+        border: Border.all(color: (isDark ? Colors.white : Colors.black).withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 8,
               offset: const Offset(0, 3))
         ],
@@ -126,8 +133,8 @@ class _Section extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             body,
-            style: const TextStyle(
-                color: AppTheme.textGrey, fontSize: 13, height: 1.6),
+            style: TextStyle(
+                color: textColor, fontSize: 13, height: 1.6),
           ),
         ],
       ),

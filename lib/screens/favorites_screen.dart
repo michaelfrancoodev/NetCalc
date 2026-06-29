@@ -40,13 +40,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Future<void> _clearAll() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(ctx).cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Text('Clear Favorites',
-            style: TextStyle(color: AppTheme.textDark)),
+        title: Text('Clear Favorites',
+            style: TextStyle(color: textColor)),
         content: const Text('Delete all saved favorites?',
             style: TextStyle(color: AppTheme.textGrey)),
         actions: [
@@ -79,9 +82,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.mainBackground),
+        decoration: BoxDecoration(gradient: isDark ? null : AppTheme.mainBackground),
         child: SafeArea(
           child: Column(
             children: [
@@ -91,15 +99,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: AppTheme.textDark, size: 20),
+                      icon: Icon(Icons.arrow_back_ios_new_rounded,
+                          color: textColor, size: 20),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    const Text('Favorites',
+                    Text('Favorites',
                         style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.textDark)),
+                            color: textColor)),
                     const Spacer(),
                     if (_entries.isNotEmpty)
                       IconButton(
@@ -111,7 +119,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   ],
                 ),
               ),
-              const Divider(color: Colors.black12, height: 1),
+              Divider(color: isDark ? Colors.white10 : Colors.black12, height: 1),
 
               if (!_loading && _entries.isNotEmpty)
                 Padding(
@@ -125,7 +133,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       Text('Swipe left to delete  •  Tap to reuse',
                           style: TextStyle(
                               fontSize: 11,
-                              color: Colors.black.withValues(alpha: 0.3))),
+                              color: textColor.withOpacity(0.3))),
                     ],
                   ),
                 ),
@@ -136,14 +144,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         child: CircularProgressIndicator(
                             color: AppTheme.neonCyan, strokeWidth: 2))
                     : _entries.isEmpty
-                        ? _buildEmpty()
+                        ? _buildEmpty(textColor)
                         : ListView.builder(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 6),
                             itemCount: _entries.length,
                             itemBuilder: (ctx, i) {
                               final e = _entries[i];
-                              return _buildCard(e, i);
+                              return _buildCard(e, i, cardColor, textColor);
                             },
                           ),
               ),
@@ -154,31 +162,31 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty(Color textColor) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.star_border_rounded,
-              size: 60, color: Colors.black.withValues(alpha: 0.1)),
+              size: 60, color: textColor.withOpacity(0.1)),
           const SizedBox(height: 14),
           Text('No favorites yet',
               style: TextStyle(
                   fontSize: 16,
-                  color: Colors.black.withValues(alpha: 0.4))),
+                  color: textColor.withOpacity(0.4))),
           const SizedBox(height: 6),
           Text('Tap the star icon on the calculator\nto save a result.',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 12,
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: textColor.withOpacity(0.3),
                   height: 1.5)),
         ],
       ),
     );
   }
 
-  Widget _buildCard(FavoriteEntry e, int index) {
+  Widget _buildCard(FavoriteEntry e, int index, Color cardColor, Color textColor) {
     return Dismissible(
       key: ValueKey('${e.expression}_${e.savedAt.millisecondsSinceEpoch}'),
       direction: DismissDirection.endToStart,
@@ -187,7 +195,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         padding: const EdgeInsets.only(right: 20),
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
-          color: AppTheme.neonPink.withValues(alpha: 0.1),
+          color: AppTheme.neonPink.withOpacity(0.1),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.delete_outline_rounded,
@@ -219,13 +227,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           padding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-                color: Colors.black.withValues(alpha: 0.05)),
+                color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(0.05)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
+                color: Colors.black.withOpacity(0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               )
@@ -234,7 +242,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           child: Row(
             children: [
               Icon(Icons.star_rounded,
-                  color: AppTheme.neonCyan.withValues(alpha: 0.7),
+                  color: AppTheme.neonCyan.withOpacity(0.7),
                   size: 18),
               const SizedBox(width: 12),
               Expanded(
@@ -250,9 +258,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 4),
                     Text('= ${e.result}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 20,
-                            color: AppTheme.textDark,
+                            color: textColor,
                             fontWeight: FontWeight.w700)),
                   ],
                 ),
@@ -261,7 +269,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               Text(_formatTime(e.savedAt),
                   style: TextStyle(
                       fontSize: 11,
-                      color: Colors.black.withValues(alpha: 0.3),
+                      color: textColor.withOpacity(0.3),
                       fontWeight: FontWeight.w400)),
             ],
           ),

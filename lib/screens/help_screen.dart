@@ -34,10 +34,13 @@ class HelpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.mainBackground),
+        decoration: BoxDecoration(gradient: isDark ? null : AppTheme.mainBackground),
         child: SafeArea(
           child: Column(
             children: [
@@ -46,19 +49,19 @@ class HelpScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: AppTheme.textDark, size: 20),
+                      icon: Icon(Icons.arrow_back_ios_new_rounded,
+                          color: textColor, size: 20),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    const Text('Help & Guide',
+                    Text('Help & Guide',
                         style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.textDark)),
+                            color: textColor)),
                   ],
                 ),
               ),
-              const Divider(color: Colors.black12, height: 1),
+              Divider(color: isDark ? Colors.white10 : Colors.black12, height: 1),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(14),
@@ -92,20 +95,23 @@ class _HelpCardState extends State<_HelpCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _expanded
-              ? AppTheme.primaryBlue.withValues(alpha: 0.25)
-              : Colors.black.withValues(alpha: 0.06),
+              ? AppTheme.primaryBlue.withOpacity(0.25)
+              : (isDark ? Colors.white10 : Colors.black.withOpacity(0.06)),
         ),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 8,
               offset: const Offset(0, 3))
         ],
@@ -125,7 +131,7 @@ class _HelpCardState extends State<_HelpCard> {
                         style: TextStyle(
                             color: _expanded
                                 ? AppTheme.primaryBlue
-                                : AppTheme.textDark,
+                                : (isDark ? Colors.white : AppTheme.textDark),
                             fontSize: 15,
                             fontWeight: FontWeight.w600)),
                   ),

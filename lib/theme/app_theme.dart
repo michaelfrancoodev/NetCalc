@@ -66,7 +66,7 @@ class AppTheme {
   );
 
   static LinearGradient glassButton(Color tint) => LinearGradient(
-    colors: [tint.withValues(alpha: 0.12), tint.withValues(alpha: 0.04)],
+    colors: [tint.withOpacity(0.12), tint.withOpacity(0.04)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -104,5 +104,36 @@ class AppTheme {
     cardColor: surface,
   );
 
-  static ThemeData get darkTheme => lightTheme;
+  // ── Dark Theme ─────────────────────────────────────────────────────────────
+  static ThemeData get darkTheme => ThemeData(
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: const Color(0xFF0D1117),
+    fontFamily: 'Roboto',
+    useMaterial3: true,
+    colorScheme: ColorScheme.dark(
+      primary: primaryBlue,
+      secondary: primaryPurple,
+      surface: const Color(0xFF161B22),
+      error: textPink,
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: true,
+      iconTheme: IconThemeData(color: Colors.white),
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        fontFamily: 'Roboto',
+      ),
+    ),
+    textTheme: const TextTheme(
+      bodyLarge: TextStyle(color: Colors.white, fontFamily: 'Roboto'),
+      bodyMedium: TextStyle(color: Colors.white70, fontFamily: 'Roboto'),
+      titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Roboto'),
+    ),
+    dividerColor: Colors.white10,
+    cardColor: const Color(0xFF161B22),
+  );
 }

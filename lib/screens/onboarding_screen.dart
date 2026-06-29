@@ -50,11 +50,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: Stack(
         children: [
           // Background Gradient + Decorative Elements
-          const _OnboardingBackground(),
+          _OnboardingBackground(isDark: isDark),
           
           SafeArea(
             child: Column(
@@ -69,11 +71,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: TextButton(
                         onPressed: _completeOnboarding,
                         style: TextButton.styleFrom(
-                          backgroundColor: Colors.white.withValues(alpha: 0.6),
+                          backgroundColor: (isDark ? Colors.white10 : Colors.white.withOpacity(0.6)),
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                         ),
-                        child: const Text("Skip", style: TextStyle(color: AppTheme.textDark, fontWeight: FontWeight.w600)),
+                        child: Text("Skip", style: TextStyle(color: isDark ? Colors.white : AppTheme.textDark, fontWeight: FontWeight.w600)),
                       ),
                     ),
                   ),
@@ -85,7 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPageChanged: (index) => setState(() => _currentPage = index),
                     itemCount: _pages.length,
                     itemBuilder: (context, index) {
-                      return _OnboardingPage(data: _pages[index]);
+                      return _OnboardingPage(data: _pages[index], isDark: isDark);
                     },
                   ),
                 ),
@@ -123,7 +125,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                                color: AppTheme.primaryBlue.withOpacity(0.3),
                                 blurRadius: 15,
                                 offset: const Offset(0, 8),
                               ),
@@ -171,7 +173,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
 class _OnboardingPage extends StatelessWidget {
   final OnboardingData data;
-  const _OnboardingPage({required this.data});
+  final bool isDark;
+  const _OnboardingPage({required this.data, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -188,11 +191,11 @@ class _OnboardingPage extends StatelessWidget {
               height: MediaQuery.of(context).size.height * 0.32,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.4),
+                color: isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.4),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
+                    color: Colors.black.withOpacity(0.02),
                     blurRadius: 40,
                   )
                 ],
@@ -213,10 +216,10 @@ class _OnboardingPage extends StatelessWidget {
             child: Text(
               data.title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: AppTheme.textDark,
+                color: isDark ? Colors.white : AppTheme.textDark,
                 height: 1.2,
                 letterSpacing: -0.5,
               ),
@@ -230,10 +233,10 @@ class _OnboardingPage extends StatelessWidget {
             child: Text(
               data.description,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                color: AppTheme.textGrey,
+                color: isDark ? Colors.white70 : AppTheme.textGrey,
                 height: 1.6,
               ),
             ),
@@ -245,20 +248,25 @@ class _OnboardingPage extends StatelessWidget {
 }
 
 class _OnboardingBackground extends StatelessWidget {
-  const _OnboardingBackground();
+  final bool isDark;
+  const _OnboardingBackground({required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
+              colors: isDark ? [
+                const Color(0xFF0D1117),
+                const Color(0xFF161B22),
+                const Color(0xFF0D1117),
+              ] : [
                 Colors.white,
-                Color(0xFFF2F7FF),
-                Color(0xFFF7F2FF),
-                Color(0xFFF0FFFE),
+                const Color(0xFFF2F7FF),
+                const Color(0xFFF7F2FF),
+                const Color(0xFFF0FFFE),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,

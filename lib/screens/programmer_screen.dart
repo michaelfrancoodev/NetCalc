@@ -136,11 +136,15 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Programmer'),
-        backgroundColor: AppTheme.background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: SafeArea(
@@ -151,22 +155,22 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 16)
+                      color: Colors.black.withOpacity(0.04), blurRadius: 16)
                 ],
               ),
               child: Column(
                 children: [
-                  _baseRow('HEX', 16),
+                  _baseRow('HEX', 16, textColor),
                   const Divider(height: 12),
-                  _baseRow('DEC', 10),
+                  _baseRow('DEC', 10, textColor),
                   const Divider(height: 12),
-                  _baseRow('OCT', 8),
+                  _baseRow('OCT', 8, textColor),
                   const Divider(height: 12),
-                  _baseRow('BIN', 2),
+                  _baseRow('BIN', 2, textColor),
                 ],
               ),
             ),
@@ -191,11 +195,11 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
                       decoration: BoxDecoration(
                         color: sel
                             ? AppTheme.primaryBlue
-                            : Colors.white,
+                            : cardColor,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
+                              color: Colors.black.withOpacity(0.06),
                               blurRadius: 4)
                         ],
                       ),
@@ -213,14 +217,14 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
             const SizedBox(height: 8),
 
             // ── Keypad ────────────────────────────────────────────────────
-            Expanded(child: _buildKeypad()),
+            Expanded(child: _buildKeypad(cardColor, textColor)),
           ],
         ),
       ),
     );
   }
 
-  Widget _baseRow(String label, int radix) {
+  Widget _baseRow(String label, int radix, Color textColor) {
     final active = _base == label;
     return GestureDetector(
       onTap: () => setState(() {
@@ -244,7 +248,7 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
               style: TextStyle(
                   fontSize: active ? 20 : 14,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-                  color: active ? AppTheme.textDark : AppTheme.textGrey,
+                  color: active ? textColor : AppTheme.textGrey,
                   fontFamily: 'monospace'),
               overflow: TextOverflow.ellipsis,
             ),
@@ -254,37 +258,37 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
     );
   }
 
-  Widget _buildKeypad() {
+  Widget _buildKeypad(Color cardColor, Color textColor) {
     final hexExtra = _base == 'HEX';
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 16, offset: Offset(0, -4))
         ],
       ),
       child: Column(
         children: [
-          _pRow(['AND', 'OR', 'XOR', 'NOT', 'MOD']),
-          _pRow(['LSH', 'RSH', 'NAND', 'NOR', 'AC']),
+          _pRow(['AND', 'OR', 'XOR', 'NOT', 'MOD'], textColor),
+          _pRow(['LSH', 'RSH', 'NAND', 'NOR', 'AC'], textColor),
           if (hexExtra) ...[
-            _pRow(['A', 'B', 'C', 'D', 'E']),
-            _pRow(['F', '7', '8', '9', 'DEL']),
-            _pRow(['4', '5', '6', '1', '2']),
-            _pRow(['3', '0', 'AC', 'DEL', '=']),
+            _pRow(['A', 'B', 'C', 'D', 'E'], textColor),
+            _pRow(['F', '7', '8', '9', 'DEL'], textColor),
+            _pRow(['4', '5', '6', '1', '2'], textColor),
+            _pRow(['3', '0', 'AC', 'DEL', '='], textColor),
           ] else ...[
-            _pRow(['7', '8', '9', 'DEL', '=']),
-            _pRow(['4', '5', '6', '1', '2']),
-            _pRow(['3', '0', 'AC', 'DEL', '=']),
+            _pRow(['7', '8', '9', 'DEL', '='], textColor),
+            _pRow(['4', '5', '6', '1', '2'], textColor),
+            _pRow(['3', '0', 'AC', 'DEL', '='], textColor),
           ],
         ],
       ),
     );
   }
 
-  Widget _pRow(List<String> labels) => Expanded(
+  Widget _pRow(List<String> labels, Color textColor) => Expanded(
         child: Row(
           children: labels.map((l) {
             final enabled = _isOp(l) || _isValidDigit(l) || l == '=' || l == 'DEL' || l == 'AC';
@@ -294,13 +298,13 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isOp(l)
-                        ? AppTheme.primaryBlue.withValues(alpha: 0.1)
-                        : AppTheme.surface,
+                        ? AppTheme.primaryBlue.withOpacity(0.1)
+                        : (Theme.of(context).brightness == Brightness.dark ? Colors.white10 : AppTheme.surface),
                     foregroundColor:
-                        _isOp(l) ? AppTheme.primaryBlue : AppTheme.textDark,
+                        _isOp(l) ? AppTheme.primaryBlue : textColor,
                     elevation: 0,
-                    disabledBackgroundColor: Colors.grey.withValues(alpha: 0.05),
-                    disabledForegroundColor: Colors.grey.withValues(alpha: 0.3),
+                    disabledBackgroundColor: Colors.grey.withOpacity(0.05),
+                    disabledForegroundColor: Colors.grey.withOpacity(0.3),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14)),
                     padding: EdgeInsets.zero,

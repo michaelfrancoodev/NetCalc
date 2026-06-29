@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../theme/settings_manager.dart';
 
 class UnitConversionScreen extends StatefulWidget {
   const UnitConversionScreen({super.key});
@@ -122,163 +123,185 @@ class _UnitConversionScreenState extends State<UnitConversionScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.mainBackground),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 8, 8),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: AppTheme.textDark, size: 20),
-                      onPressed: () => Navigator.pop(context),
+    final manager = SettingsManager();
+    final Color accent = manager.accentColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+
+    return ListenableBuilder(
+      listenable: manager,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          body: Container(
+            decoration: BoxDecoration(gradient: isDark ? null : AppTheme.mainBackground),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 8, 8, 8),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_ios_new_rounded,
+                              color: textColor, size: 20),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        Text('Unit Converter',
+                            style: TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.w700, color: textColor)),
+                      ],
                     ),
-                    const Text('Unit Converter',
-                        style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.w700, color: AppTheme.textDark)),
-                  ],
-                ),
-              ),
+                  ),
 
-              TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                indicatorColor: AppTheme.primaryBlue,
-                indicatorWeight: 2,
-                labelColor: AppTheme.primaryBlue,
-                unselectedLabelColor: AppTheme.textGrey,
-                labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
-                tabAlignment: TabAlignment.start,
-                dividerColor: Colors.black12,
-                tabs: _categories.map((c) => Tab(text: c)).toList(),
-              ),
+                  TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    indicatorColor: accent,
+                    indicatorWeight: 2,
+                    labelColor: accent,
+                    unselectedLabelColor: AppTheme.textGrey,
+                    labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
+                    tabAlignment: TabAlignment.start,
+                    dividerColor: isDark ? Colors.white10 : Colors.black12,
+                    tabs: _categories.map((c) => Tab(text: c)).toList(),
+                  ),
 
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 8),
-                      const _SectionLabel(label: 'Value'),
-                      const SizedBox(height: 8),
-                      _GlassInput(
-                        controller: _inputCtrl,
-                        hint: 'Enter value...',
-                        keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true, signed: true),
-                        onChanged: (_) => _convert(),
-                      ),
-                      const SizedBox(height: 20),
-
-                      Row(
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const _SectionLabel(label: 'From'),
-                                const SizedBox(height: 8),
-                                _GlassDropdown(
-                                  value: _fromUnit,
-                                  items: _currentUnits,
-                                  onChanged: (v) {
-                                    setState(() => _fromUnit = v!);
+                          const SizedBox(height: 8),
+                          const _SectionLabel(label: 'Value'),
+                          const SizedBox(height: 8),
+                          _GlassInput(
+                            controller: _inputCtrl,
+                            hint: 'Enter value...',
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true, signed: true),
+                            onChanged: (_) => _convert(),
+                            cardColor: cardColor,
+                            textColor: textColor,
+                          ),
+                          const SizedBox(height: 20),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const _SectionLabel(label: 'From'),
+                                    const SizedBox(height: 8),
+                                    _GlassDropdown(
+                                      value: _fromUnit,
+                                      items: _currentUnits,
+                                      onChanged: (v) {
+                                        setState(() => _fromUnit = v!);
+                                        _convert();
+                                      },
+                                      cardColor: cardColor,
+                                      textColor: textColor,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 28),
+                                child: IconButton(
+                                  icon: Icon(Icons.swap_horiz_rounded,
+                                      color: accent, size: 26),
+                                  onPressed: () {
+                                    setState(() {
+                                      final tmp = _fromUnit;
+                                      _fromUnit = _toUnit;
+                                      _toUnit = tmp;
+                                    });
                                     _convert();
                                   },
                                 ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const _SectionLabel(label: 'To'),
+                                    const SizedBox(height: 8),
+                                    _GlassDropdown(
+                                      value: _toUnit,
+                                      items: _currentUnits,
+                                      onChanged: (v) {
+                                        setState(() => _toUnit = v!);
+                                        _convert();
+                                      },
+                                      cardColor: cardColor,
+                                      textColor: textColor,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 28),
+
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [accent.withOpacity(0.05), cardColor],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: accent.withOpacity(0.1)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
                               ],
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 28),
-                            child: IconButton(
-                              icon: const Icon(Icons.swap_horiz_rounded,
-                                  color: AppTheme.primaryBlue, size: 26),
-                              onPressed: () {
-                                setState(() {
-                                  final tmp = _fromUnit;
-                                  _fromUnit = _toUnit;
-                                  _toUnit = tmp;
-                                });
-                                _convert();
-                              },
-                            ),
-                          ),
-                          Expanded(
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                const _SectionLabel(label: 'To'),
-                                const SizedBox(height: 8),
-                                _GlassDropdown(
-                                  value: _toUnit,
-                                  items: _currentUnits,
-                                  onChanged: (v) {
-                                    setState(() => _toUnit = v!);
-                                    _convert();
-                                  },
+                                Text(
+                                  '${_inputCtrl.text.isEmpty ? "0" : _inputCtrl.text} $_fromUnit',
+                                  style: const TextStyle(
+                                      fontSize: 16, color: AppTheme.textGrey, fontWeight: FontWeight.w400),
+                                ),
+                                const SizedBox(height: 6),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    _convertedValue.isEmpty ? '—' : '$_convertedValue $_toUnit',
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      color: textColor,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 28),
-
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.displayGradient,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppTheme.primaryBlue.withValues(alpha: 0.05)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${_inputCtrl.text.isEmpty ? "0" : _inputCtrl.text} $_fromUnit',
-                              style: const TextStyle(
-                                  fontSize: 16, color: AppTheme.textGrey, fontWeight: FontWeight.w400),
-                            ),
-                            const SizedBox(height: 6),
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                _convertedValue.isEmpty ? '—' : '$_convertedValue $_toUnit',
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  color: AppTheme.textDark,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -303,29 +326,33 @@ class _GlassInput extends StatelessWidget {
   final String hint;
   final TextInputType keyboardType;
   final ValueChanged<String> onChanged;
+  final Color cardColor;
+  final Color textColor;
 
   const _GlassInput({
     required this.controller,
     required this.hint,
     required this.keyboardType,
     required this.onChanged,
+    required this.cardColor,
+    required this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+        border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(0.05)),
       ),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
-        style: const TextStyle(color: AppTheme.textDark, fontSize: 18),
+        style: TextStyle(color: textColor, fontSize: 18),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.black.withValues(alpha: 0.2), fontSize: 16),
+          hintStyle: TextStyle(color: textColor.withOpacity(0.2), fontSize: 16),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
@@ -339,30 +366,34 @@ class _GlassDropdown extends StatelessWidget {
   final String value;
   final List<String> items;
   final ValueChanged<String?> onChanged;
+  final Color cardColor;
+  final Color textColor;
 
   const _GlassDropdown({
     required this.value,
     required this.items,
     required this.onChanged,
+    required this.cardColor,
+    required this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+        border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black).withOpacity(0.05)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: items.contains(value) ? value : items.first,
           isExpanded: true,
-          dropdownColor: Colors.white,
+          dropdownColor: cardColor,
           icon: const Icon(Icons.expand_more_rounded,
               color: AppTheme.textGrey, size: 20),
-          style: const TextStyle(color: AppTheme.textDark, fontSize: 14),
+          style: TextStyle(color: textColor, fontSize: 14),
           items: items
               .map((u) => DropdownMenuItem(
                     value: u,

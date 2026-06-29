@@ -13,9 +13,14 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.mainBackground),
+        decoration: BoxDecoration(gradient: isDark ? null : AppTheme.mainBackground),
         child: SafeArea(
           child: Column(
             children: [
@@ -24,15 +29,15 @@ class ResultScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: AppTheme.textDark, size: 20),
+                      icon: Icon(Icons.arrow_back_ios_new_rounded,
+                          color: textColor, size: 20),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    const Text('Result',
+                    Text('Result',
                         style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.textDark)),
+                            color: textColor)),
                   ],
                 ),
               ),
@@ -43,13 +48,13 @@ class ResultScreen extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        gradient: AppTheme.displayGradient,
+                        color: cardColor,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                            color: AppTheme.primaryBlue.withValues(alpha: 0.1)),
+                            color: AppTheme.primaryBlue.withOpacity(0.1)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           )
@@ -67,9 +72,9 @@ class ResultScreen extends StatelessWidget {
                                   fontWeight: FontWeight.w400)),
                           const SizedBox(height: 12),
                           Text('= $result',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 40,
-                                  color: AppTheme.textDark,
+                                  color: textColor,
                                   fontWeight: FontWeight.w700)),
                         ],
                       ),

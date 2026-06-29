@@ -167,11 +167,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Statistics'),
-        backgroundColor: AppTheme.background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         bottom: TabBar(
           controller: _tabCtrl,
@@ -184,24 +186,28 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       body: SafeArea(
         child: TabBarView(
           controller: _tabCtrl,
-          children: [_descriptiveTab(), _combPermTab()],
+          children: [_descriptiveTab(isDark), _combPermTab(isDark)],
         ),
       ),
     );
   }
 
-  Widget _descriptiveTab() => SingleChildScrollView(
+  Widget _descriptiveTab(bool isDark) {
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+                      color: Colors.black.withOpacity(0.04), blurRadius: 12)
                 ],
               ),
               child: Column(
@@ -216,11 +222,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   TextField(
                     controller: _dataCtrl,
                     maxLines: 4,
+                    style: TextStyle(color: textColor),
                     keyboardType: TextInputType.multiline,
                     decoration: InputDecoration(
                       hintText: '1, 2, 3, 4, 5',
+                      hintStyle: TextStyle(color: AppTheme.textGrey.withOpacity(0.5)),
                       filled: true,
-                      fillColor: AppTheme.surface,
+                      fillColor: isDark ? Colors.white10 : AppTheme.surface,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none),
@@ -250,11 +258,11 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+                        color: Colors.black.withOpacity(0.04), blurRadius: 12)
                   ],
                 ),
                 child: Column(
@@ -269,9 +277,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                                   fontWeight: FontWeight.w500)),
                           const Spacer(),
                           Text(e.value,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  color: AppTheme.textDark)),
+                                  color: textColor)),
                         ],
                       ),
                     );
@@ -282,28 +290,33 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           ],
         ),
       );
+  }
 
-  Widget _combPermTab() => Padding(
+  Widget _combPermTab(bool isDark) {
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
+    return Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+                      color: Colors.black.withOpacity(0.04), blurRadius: 12)
                 ],
               ),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      Expanded(child: _numField2('n', _nCtrl)),
+                      Expanded(child: _numField2('n', _nCtrl, isDark, textColor)),
                       const SizedBox(width: 16),
-                      Expanded(child: _numField2('r', _rCtrl)),
+                      Expanded(child: _numField2('r', _rCtrl, isDark, textColor)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -331,26 +344,27 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+                        color: Colors.black.withOpacity(0.04), blurRadius: 12)
                   ],
                 ),
                 child: Column(
                   children: [
-                    _resultRow('Combinations nCr', _combResult),
-                    const Divider(height: 24),
-                    _resultRow('Permutations nPr', _permResult),
+                    _resultRow('Combinations nCr', _combResult, textColor),
+                    Divider(height: 24, color: isDark ? Colors.white10 : Colors.black12),
+                    _resultRow('Permutations nPr', _permResult, textColor),
                   ],
                 ),
               ),
           ],
         ),
       );
+  }
 
-  Widget _numField2(String label, TextEditingController c) => Column(
+  Widget _numField2(String label, TextEditingController c, bool isDark, Color textColor) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label,
@@ -363,10 +377,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             controller: c,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: textColor),
             decoration: InputDecoration(
               filled: true,
-              fillColor: AppTheme.surface,
+              fillColor: isDark ? Colors.white10 : AppTheme.surface,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none),
@@ -375,17 +389,17 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         ],
       );
 
-  Widget _resultRow(String label, String value) => Row(
+  Widget _resultRow(String label, String value, Color textColor) => Row(
         children: [
           Text(label,
               style: const TextStyle(
                   color: AppTheme.textGrey, fontWeight: FontWeight.w500)),
           const Spacer(),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: AppTheme.textDark)),
+                  color: textColor)),
         ],
       );
 }

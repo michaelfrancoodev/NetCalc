@@ -139,7 +139,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(
+                  const Text(
                     'SCIENTIFIC CALCULATOR',
                     style: TextStyle(
                       fontSize: 13,
@@ -165,7 +165,7 @@ class _SplashScreenState extends State<SplashScreen>
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    AppTheme.primaryBlue.withValues(alpha: 0.5),
+                    AppTheme.primaryBlue.withOpacity(0.5),
                   ),
                 ),
               ),

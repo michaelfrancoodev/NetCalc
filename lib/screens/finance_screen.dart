@@ -35,11 +35,14 @@ class _FinanceScreenState extends State<FinanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Finance'),
-        backgroundColor: AppTheme.background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: SafeArea(
@@ -61,11 +64,11 @@ class _FinanceScreenState extends State<FinanceScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         gradient: active ? AppTheme.accentGradient : null,
-                        color: active ? null : Colors.white,
+                        color: active ? null : cardColor,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
+                              color: Colors.black.withOpacity(0.05),
                               blurRadius: 6)
                         ],
                       ),
@@ -144,25 +147,30 @@ class _FinanceForm extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.textDark)),
+                    color: textColor)),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+                      color: Colors.black.withOpacity(0.04), blurRadius: 12)
                 ],
               ),
               child: Column(
@@ -180,12 +188,14 @@ class _FinanceForm extends StatelessWidget {
                             const SizedBox(height: 4),
                             TextField(
                               controller: f.ctrl,
+                              style: TextStyle(color: textColor),
                               keyboardType: const TextInputType
                                   .numberWithOptions(decimal: true),
                               decoration: InputDecoration(
                                 hintText: f.hint,
+                                hintStyle: TextStyle(color: AppTheme.textGrey.withOpacity(0.5)),
                                 filled: true,
-                                fillColor: AppTheme.surface,
+                                fillColor: isDark ? Colors.white10 : AppTheme.surface,
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide.none),
@@ -219,11 +229,11 @@ class _FinanceForm extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+                        color: Colors.black.withOpacity(0.04), blurRadius: 12)
                   ],
                 ),
                 child: Column(
@@ -238,10 +248,10 @@ class _FinanceForm extends StatelessWidget {
                                         fontWeight: FontWeight.w500)),
                                 const Spacer(),
                                 Text(r.value,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w800,
-                                        color: AppTheme.textDark)),
+                                        color: textColor)),
                               ],
                             ),
                           ))
@@ -252,6 +262,7 @@ class _FinanceForm extends StatelessWidget {
           ],
         ),
       );
+  }
 }
 
 class _Field {

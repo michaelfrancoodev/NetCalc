@@ -119,11 +119,15 @@ class _FractionScreenState extends State<FractionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Fraction Calculator'),
-        backgroundColor: AppTheme.background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: SafeArea(
@@ -131,11 +135,11 @@ class _FractionScreenState extends State<FractionScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              _fractionInput('First Fraction', _n1c, _d1c),
+              _fractionInput('First Fraction', _n1c, _d1c, cardColor, textColor),
               const SizedBox(height: 16),
-              _operatorRow(),
+              _operatorRow(cardColor, textColor),
               const SizedBox(height: 16),
-              _fractionInput('Second Fraction', _n2c, _d2c),
+              _fractionInput('Second Fraction', _n2c, _d2c, cardColor, textColor),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -146,7 +150,7 @@ class _FractionScreenState extends State<FractionScreen> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                          color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                          color: AppTheme.primaryBlue.withOpacity(0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 6))
                     ],
@@ -162,7 +166,7 @@ class _FractionScreenState extends State<FractionScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              if (_hasResult) _resultCard(),
+              if (_hasResult) _resultCard(cardColor, textColor),
             ],
           ),
         ),
@@ -171,15 +175,15 @@ class _FractionScreenState extends State<FractionScreen> {
   }
 
   Widget _fractionInput(
-      String label, TextEditingController nc, TextEditingController dc) {
+      String label, TextEditingController nc, TextEditingController dc, Color cardColor, Color textColor) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+              color: Colors.black.withOpacity(0.04), blurRadius: 12)
         ],
       ),
       child: Column(
@@ -193,7 +197,7 @@ class _FractionScreenState extends State<FractionScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _numField('Numerator', nc)),
+              Expanded(child: _numField('Numerator', nc, textColor)),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 child: Text('/',
@@ -202,7 +206,7 @@ class _FractionScreenState extends State<FractionScreen> {
                         fontWeight: FontWeight.w300,
                         color: AppTheme.textGrey)),
               ),
-              Expanded(child: _numField('Denominator', dc)),
+              Expanded(child: _numField('Denominator', dc, textColor)),
             ],
           ),
         ],
@@ -210,24 +214,24 @@ class _FractionScreenState extends State<FractionScreen> {
     );
   }
 
-  Widget _numField(String hint, TextEditingController c) => TextField(
+  Widget _numField(String hint, TextEditingController c, Color textColor) => TextField(
         controller: c,
         keyboardType:
             const TextInputType.numberWithOptions(signed: true, decimal: false),
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: textColor),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(fontSize: 13, color: AppTheme.textGrey),
           filled: true,
-          fillColor: AppTheme.surface,
+          fillColor: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : AppTheme.surface,
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none),
         ),
       );
 
-  Widget _operatorRow() => Row(
+  Widget _operatorRow(Color cardColor, Color textColor) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: ['+', '−', '×', '÷'].map((op) {
           final sel = _op == op;
@@ -240,11 +244,11 @@ class _FractionScreenState extends State<FractionScreen> {
               height: 52,
               decoration: BoxDecoration(
                 gradient: sel ? AppTheme.accentGradient : null,
-                color: sel ? null : Colors.white,
+                color: sel ? null : cardColor,
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05), blurRadius: 8)
+                      color: Colors.black.withOpacity(0.05), blurRadius: 8)
                 ],
               ),
               child: Center(
@@ -252,22 +256,22 @@ class _FractionScreenState extends State<FractionScreen> {
                     style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: sel ? Colors.white : AppTheme.textDark)),
+                        color: sel ? Colors.white : textColor)),
               ),
             ),
           );
         }).toList(),
       );
 
-  Widget _resultCard() => Container(
+  Widget _resultCard(Color cardColor, Color textColor) => Container(
         width: double.infinity,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+                color: Colors.black.withOpacity(0.04), blurRadius: 12)
           ],
         ),
         child: Column(
@@ -286,24 +290,24 @@ class _FractionScreenState extends State<FractionScreen> {
                   Column(
                     children: [
                       Text('$_rNum',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
-                              color: AppTheme.textDark)),
-                      Container(height: 2, width: 60, color: AppTheme.textDark),
+                              color: textColor)),
+                      Container(height: 2, width: 60, color: textColor),
                       Text('$_rDen',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
-                              color: AppTheme.textDark)),
+                              color: textColor)),
                     ],
                   )
                 else
                   Text('$_rNum',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 40,
                           fontWeight: FontWeight.w800,
-                          color: AppTheme.textDark)),
+                          color: textColor)),
               ],
             ),
             const SizedBox(height: 8),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
+import 'theme/settings_manager.dart';
 import 'screens/splash_screen.dart';
 import 'database/local_storage.dart';
 
@@ -22,10 +23,11 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Preload both history and favorites caches so first access is instant
-  await Future.wait([
+  // Preload history, favorites, and settings
+  Future.wait([
     LocalStorage.loadHistory(),
     LocalStorage.loadFavorites(),
+    SettingsManager().init(),
   ]);
 
   runApp(const NetCalcProApp());
@@ -36,11 +38,41 @@ class NetCalcProApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'NetCalc Pro',
-      debugShowCheckedModeBanner: false, // Explicitly strips away debug tag
-      theme: AppTheme.darkTheme,         // Connects global visual layout configurations
-      home: const SplashScreen(),       // Establishes custom launch timeline sequence
+    return ListenableBuilder(
+      listenable: SettingsManager(),
+      builder: (context, _) {
+        final manager = SettingsManager();
+        
+        // Determine if we are effectively in dark mode to set system overlays
+        final bool isDark = manager.themeMode == ThemeMode.dark || 
+            (manager.themeMode == ThemeMode.system && 
+             View.of(context).platformDispatcher.platformBrightness == Brightness.dark);
+
+        // Update system overlay style dynamically
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        ));
+
+        return MaterialApp(
+          title: 'NetCalc Pro',
+          debugShowCheckedModeBanner: false,
+          themeMode: manager.themeMode,
+          theme: AppTheme.lightTheme.copyWith(
+            colorScheme: AppTheme.lightTheme.colorScheme.copyWith(
+              primary: manager.accentColor,
+            ),
+          ),
+          darkTheme: AppTheme.darkTheme.copyWith(
+            colorScheme: AppTheme.darkTheme.colorScheme.copyWith(
+              primary: manager.accentColor,
+            ),
+          ),
+          home: const SplashScreen(),
+        );
+      },
     );
   }
 }

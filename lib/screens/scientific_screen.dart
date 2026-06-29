@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../theme/settings_manager.dart';
 import '../widgets/glass_calc_button.dart';
 import '../database/local_storage.dart';
 import '../models/history_model.dart';
@@ -187,22 +188,20 @@ class _ScientificScreenState extends State<ScientificScreen>
   }
 
   String _fmt(double v) {
-    if (v.isInfinite) return v > 0 ? '∞' : '-∞';
-    if (v.isNaN) return 'Error';
-    if (v == v.truncateToDouble() && v.abs() < 1e15) {
-      return v.toInt().toString();
-    }
-    String s = v.toStringAsFixed(_precision);
-    return s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    return SettingsManager().formatNumber(v);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Scientific'),
-        backgroundColor: AppTheme.background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           TextButton(
@@ -221,33 +220,33 @@ class _ScientificScreenState extends State<ScientificScreen>
       body: SafeArea(
         child: Column(
           children: [
-            _buildDisplay(),
+            _buildDisplay(cardColor, textColor),
             const SizedBox(height: 4),
-            _sciRowWidget(_row1),
+            _sciRowWidget(_row1, cardColor),
             const SizedBox(height: 4),
-            _sciRowWidget(_row2),
+            _sciRowWidget(_row2, cardColor),
             const SizedBox(height: 4),
-            _sciRowWidget(_row3),
+            _sciRowWidget(_row3, cardColor),
             const SizedBox(height: 4),
-            _sciRowWidget(_row4),
+            _sciRowWidget(_row4, cardColor),
             const SizedBox(height: 4),
-            Expanded(child: _buildKeypad()),
+            Expanded(child: _buildKeypad(cardColor)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDisplay() => Container(
+  Widget _buildDisplay(Color cardColor, Color textColor) => Container(
         height: 150,
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Colors.black.withOpacity(0.04),
                 blurRadius: 16,
                 offset: const Offset(0, 8))
           ],
@@ -273,14 +272,14 @@ class _ScientificScreenState extends State<ScientificScreen>
                                 _result.contains('Syntax') ||
                                 _result.contains('Invalid')
                             ? AppTheme.textPink
-                            : AppTheme.textDark)),
+                            : textColor)),
               ),
             ),
           ],
         ),
       );
 
-  Widget _sciRowWidget(List<String> items) => SizedBox(
+  Widget _sciRowWidget(List<String> items, Color cardColor) => SizedBox(
         height: 34,
         child: ListView(
           scrollDirection: Axis.horizontal,
@@ -289,7 +288,7 @@ class _ScientificScreenState extends State<ScientificScreen>
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: Material(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(10),
                 elevation: 1,
                 shadowColor: Colors.black12,
@@ -312,13 +311,13 @@ class _ScientificScreenState extends State<ScientificScreen>
         ),
       );
 
-  Widget _buildKeypad() => Container(
+  Widget _buildKeypad(Color cardColor) => Container(
         margin: const EdgeInsets.only(top: 4),
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          boxShadow: [
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          boxShadow: const [
             BoxShadow(
                 color: Colors.black12, blurRadius: 16, offset: Offset(0, -4))
           ],

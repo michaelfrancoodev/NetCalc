@@ -8,10 +8,14 @@ class AboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.mainBackground),
+        decoration: BoxDecoration(gradient: isDark ? null : AppTheme.mainBackground),
         child: SafeArea(
           child: Column(
             children: [
@@ -21,21 +25,21 @@ class AboutScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: AppTheme.textDark, size: 20),
+                      icon: Icon(Icons.arrow_back_ios_new_rounded,
+                          color: textColor, size: 20),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    const Text(
+                    Text(
                       'About NetCalc Pro',
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.textDark),
+                          color: textColor),
                     ),
                   ],
                 ),
               ),
-              const Divider(color: Colors.black12, height: 1),
+              Divider(color: isDark ? Colors.white10 : Colors.black12, height: 1),
 
               // ── Body ─────────────────────────────────────────────────────
               Expanded(
@@ -64,12 +68,12 @@ class AboutScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             'NetCalc Pro',
                             style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.w800,
-                                color: AppTheme.textDark,
+                                color: textColor,
                                 letterSpacing: 0.5),
                           ),
                           const SizedBox(height: 6),
@@ -88,38 +92,38 @@ class AboutScreen extends StatelessWidget {
                     const SizedBox(height: 32),
 
                     // App info card
-                    _card([
-                      _infoTile('Developer', 'NetCalc Team', Icons.person_outline_rounded),
-                      const Divider(height: 1),
-                      _infoTile('Platform', 'Android & iOS', Icons.phone_android_rounded),
-                      const Divider(height: 1),
-                      _infoTile('Framework', 'Flutter 3.x', Icons.code_rounded),
-                      const Divider(height: 1),
-                      _infoTile('License', 'Premium', Icons.verified_outlined),
+                    _card(cardColor, [
+                      _infoTile('Developer', 'NetCalc Team', Icons.person_outline_rounded, textColor),
+                      Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+                      _infoTile('Platform', 'Android & iOS', Icons.phone_android_rounded, textColor),
+                      Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+                      _infoTile('Framework', 'Flutter 3.x', Icons.code_rounded, textColor),
+                      Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+                      _infoTile('License', 'Premium', Icons.verified_outlined, textColor),
                     ]),
 
                     const SizedBox(height: 16),
 
                     // Sections
-                    _card([
+                    _card(cardColor, [
                       _InfoSection(
                         title: 'Our Mission',
                         content:
                             'NetCalc Pro is designed to provide a high-precision, offline-first calculation experience. We believe that professional tools should be private, fast, and free from the distractions of advertisements and online tracking.',
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
                       _InfoSection(
                         title: 'Premium Features',
                         content:
                             'This edition offers a full suite of scientific functions, a comprehensive unit converter, and a secure local history and favorites system. Every element is crafted for professionals who value both utility and design.',
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
                       _InfoSection(
                         title: 'Academic Origins',
                         content:
                             'Developed as a capstone project by students of the Diploma in ICT programme (Third Year, Group 2) under the course IT 6322 — Mobile Networks and Computing, guided by Mr. Alexander Richard.',
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
                       _InfoSection(
                         title: 'The Team',
                         content:
@@ -130,27 +134,27 @@ class AboutScreen extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     // Links card — Privacy, Terms, Rate, Feedback
-                    _card([
+                    _card(cardColor, [
                       _linkTile(
                         'Privacy Policy',
                         Icons.privacy_tip_outlined,
                         () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const PrivacyScreen())),
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
                       _linkTile(
                         'Terms of Service',
                         Icons.description_outlined,
                         () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const TermsScreen())),
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
                       _linkTile(
                         'Rate on Play Store',
                         Icons.star_outline_rounded,
                         () {/* Future: launch URL */},
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
                       _linkTile(
                         'Send Feedback',
                         Icons.mail_outline_rounded,
@@ -167,7 +171,7 @@ class AboutScreen extends StatelessWidget {
                           Text(
                             'Designed for Privacy & Precision',
                             style: TextStyle(
-                              color: AppTheme.textGrey.withValues(alpha: 0.6),
+                              color: AppTheme.textGrey.withOpacity(0.6),
                               fontSize: 11,
                               fontStyle: FontStyle.italic,
                             ),
@@ -176,7 +180,7 @@ class AboutScreen extends StatelessWidget {
                           Text(
                             '© 2025 NetCalc Pro. All rights reserved.',
                             style: TextStyle(
-                              color: AppTheme.textGrey.withValues(alpha: 0.4),
+                              color: AppTheme.textGrey.withOpacity(0.4),
                               fontSize: 10,
                             ),
                           ),
@@ -193,14 +197,14 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _card(List<Widget> children) => Container(
+  Widget _card(Color cardColor, List<Widget> children) => Container(
         margin: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Colors.black.withOpacity(0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4))
           ],
@@ -208,13 +212,13 @@ class AboutScreen extends StatelessWidget {
         child: Column(children: children),
       );
 
-  Widget _infoTile(String label, String value, IconData icon) => ListTile(
+  Widget _infoTile(String label, String value, IconData icon, Color textColor) => ListTile(
         leading: Icon(icon, color: AppTheme.primaryBlue, size: 20),
         title: Text(label,
             style: const TextStyle(color: AppTheme.textGrey, fontSize: 13)),
         trailing: Text(value,
-            style: const TextStyle(
-                fontWeight: FontWeight.w700, color: AppTheme.textDark)),
+            style: TextStyle(
+                fontWeight: FontWeight.w700, color: textColor)),
       );
 
   Widget _linkTile(String label, IconData icon, VoidCallback onTap) => ListTile(

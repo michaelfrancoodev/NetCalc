@@ -155,11 +155,15 @@ class _MatrixScreenState extends State<MatrixScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Matrix Calculator'),
-        backgroundColor: AppTheme.background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: SafeArea(
@@ -189,11 +193,11 @@ class _MatrixScreenState extends State<MatrixScreen> {
                               horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
                             gradient: active ? AppTheme.accentGradient : null,
-                            color: active ? null : Colors.white,
+                            color: active ? null : cardColor,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
+                                  color: Colors.black.withOpacity(0.05),
                                   blurRadius: 6)
                             ],
                           ),
@@ -211,7 +215,7 @@ class _MatrixScreenState extends State<MatrixScreen> {
               const SizedBox(height: 16),
 
               // Matrix A
-              _matrixCard('Matrix A', _aCtrl, _rowsA, _colsA,
+              _matrixCard('Matrix A', _aCtrl, _rowsA, _colsA, cardColor, textColor,
                   onRows: (v) => setState(() {
                         _rowsA = v;
                         _initControllers(disposeExisting: true);
@@ -224,7 +228,7 @@ class _MatrixScreenState extends State<MatrixScreen> {
 
               // Matrix B (hidden for Transpose and Determinant)
               if (!['Transpose', 'Determinant'].contains(_operation))
-                _matrixCard('Matrix B', _bCtrl, _rowsB, _colsB,
+                _matrixCard('Matrix B', _bCtrl, _rowsB, _colsB, cardColor, textColor,
                     onRows: (v) => setState(() {
                           _rowsB = v;
                           _initControllers(disposeExisting: true);
@@ -246,7 +250,7 @@ class _MatrixScreenState extends State<MatrixScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                            color: AppTheme.primaryBlue.withValues(alpha: 0.3),
+                            color: AppTheme.primaryBlue.withOpacity(0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 6))
                       ]),
@@ -269,9 +273,9 @@ class _MatrixScreenState extends State<MatrixScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppTheme.textPink.withValues(alpha: 0.1),
+                    color: AppTheme.textPink.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppTheme.textPink.withValues(alpha: 0.3)),
+                    border: Border.all(color: AppTheme.textPink.withOpacity(0.3)),
                   ),
                   child: Text(_error!,
                       style: const TextStyle(
@@ -284,11 +288,11 @@ class _MatrixScreenState extends State<MatrixScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+                          color: Colors.black.withOpacity(0.04), blurRadius: 12)
                     ],
                   ),
                   child: Column(
@@ -302,10 +306,10 @@ class _MatrixScreenState extends State<MatrixScreen> {
                       const SizedBox(height: 12),
                       if (_det != null)
                         Text(_fmt(_det!),
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 36,
                                 fontWeight: FontWeight.w800,
-                                color: AppTheme.textDark)),
+                                color: textColor)),
                       if (_result != null)
                         ..._result!.map((row) => Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -317,13 +321,14 @@ class _MatrixScreenState extends State<MatrixScreen> {
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 8),
                                         decoration: BoxDecoration(
-                                          color: AppTheme.surface,
+                                          color: isDark ? Colors.white10 : AppTheme.surface,
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
                                         child: Text(_fmt(v),
                                             textAlign: TextAlign.center,
-                                            style: const TextStyle(
+                                            style: TextStyle(
+                                                color: textColor,
                                                 fontWeight: FontWeight.w600)),
                                       ),
                                     )).toList(),
@@ -344,16 +349,19 @@ class _MatrixScreenState extends State<MatrixScreen> {
       List<List<TextEditingController>> ctrl,
       int rows,
       int cols,
+      Color cardColor,
+      Color textColor,
       {required void Function(int) onRows,
       required void Function(int) onCols}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)
+              color: Colors.black.withOpacity(0.04), blurRadius: 12)
         ],
       ),
       child: Column(
@@ -361,7 +369,8 @@ class _MatrixScreenState extends State<MatrixScreen> {
           Row(
             children: [
               Text(title,
-                  style: const TextStyle(
+                  style: TextStyle(
+                      color: textColor,
                       fontWeight: FontWeight.w700, fontSize: 15)),
               const Spacer(),
               _dimPicker('Rows', rows, onRows),
@@ -380,13 +389,13 @@ class _MatrixScreenState extends State<MatrixScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: TextField(
                         controller: ctrl[i][j],
+                        style: TextStyle(color: textColor),
                         keyboardType: const TextInputType.numberWithOptions(
                             signed: true, decimal: true),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: AppTheme.surface,
+                          fillColor: isDark ? Colors.white10 : AppTheme.surface,
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide.none),

@@ -2,7 +2,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
+import '../theme/settings_manager.dart';
 import '../widgets/glass_calc_button.dart';
 import '../models/history_model.dart';
 import '../models/favorite_model.dart';
@@ -35,8 +37,6 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   String _input = '';
   String _result = '0';
   String _prevAns = '';
-  String _angleMode = 'DEG';
-  int _precision = 10;
   bool _justCalculated = false;
   bool _isFav = false;
   int _navIndex = 0;
@@ -49,7 +49,6 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   @override
   void initState() {
     super.initState();
-    _loadPrefs();
     _fadeCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 250));
     _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -70,19 +69,10 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     super.dispose();
   }
 
-  Future<void> _loadPrefs() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      if (!mounted) return;
-      setState(() {
-        _angleMode = prefs.getString('angle_mode') ?? 'DEG';
-        _precision = prefs.getInt('precision') ?? 10;
-      });
-    } catch (_) {}
-  }
-
   void _onTap(String val) {
-    HapticFeedback.selectionClick();
+    if (SettingsManager().haptic) {
+      HapticFeedback.selectionClick();
+    }
     setState(() {
       switch (val) {
         case 'AC':
@@ -181,8 +171,9 @@ class _CalculatorScreenState extends State<CalculatorScreen>
 
   void _livePreview() {
     try {
+      final manager = SettingsManager();
       final s = sanitizeExpr(_input, _prevAns);
-      final v = _ExprParser(s, _angleMode).evaluate();
+      final v = _ExprParser(s, manager.angleMode).evaluate();
       if (v != null && v.isFinite) {
         setState(() => _result = _fmt(v));
       }
@@ -192,8 +183,9 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   void _calculate() {
     if (_input.isEmpty) return;
     try {
+      final manager = SettingsManager();
       final s = sanitizeExpr(_input, _prevAns);
-      final v = _ExprParser(s, _angleMode).evaluate();
+      final v = _ExprParser(s, manager.angleMode).evaluate();
       if (v == null) {
         setState(() => _result = 'Invalid Expression');
         return;
@@ -228,15 +220,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   }
 
   String _fmt(double v) {
-    if (v.isInfinite) return v > 0 ? '∞' : '-∞';
-    if (v.isNaN) return 'Error';
-    if (v == v.truncateToDouble() && v.abs() < 1e15) {
-      return v.toInt().toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
-    }
-    String s = v.toStringAsFixed(_precision);
-    s = s.replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
-    return s;
+    return SettingsManager().formatNumber(v);
   }
 
   void _scrollEnd() {
@@ -252,38 +236,46 @@ class _CalculatorScreenState extends State<CalculatorScreen>
   }
 
   void _pickPrecision() {
+    final manager = SettingsManager();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
     showDialog<int>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Text('Decimal Precision',
-            style: TextStyle(color: AppTheme.textDark)),
+        backgroundColor: Theme.of(ctx).cardColor,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text('Decimal Precision',
+            style: TextStyle(color: textColor, fontWeight: FontWeight.w800)),
         content: SizedBox(
           width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: List.generate(14, (i) {
-              final v = i + 2;
-              final selected = v == _precision;
-              return ListTile(
-                dense: true,
-                title: Text('$v digits', style: const TextStyle(fontSize: 14)),
-                trailing: selected
-                    ? const Icon(Icons.check_rounded,
-                        color: AppTheme.primaryBlue, size: 20)
-                    : null,
-                onTap: () async {
-                  final navigator = Navigator.of(ctx);
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setInt('precision', v);
-                  if (!mounted) return;
-                  setState(() => _precision = v);
-                  if (_input.isNotEmpty) _livePreview();
-                  navigator.pop();
-                },
-              );
-            }),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: 14,
+              itemBuilder: (ctx, i) {
+                final v = i + 2;
+                final selected = v == manager.precision;
+                return ListTile(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  dense: true,
+                  selected: selected,
+                  selectedTileColor: manager.accentColor.withOpacity(0.1),
+                  title: Text('$v digits', style: TextStyle(fontSize: 15, color: textColor, fontWeight: selected ? FontWeight.w700 : FontWeight.w400)),
+                  trailing: selected
+                      ? Icon(Icons.check_circle_rounded,
+                          color: manager.accentColor, size: 22)
+                      : null,
+                  onTap: () {
+                    manager.setPrecision(v);
+                    if (_input.isNotEmpty) _livePreview();
+                    Navigator.pop(ctx);
+                  },
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -292,31 +284,43 @@ class _CalculatorScreenState extends State<CalculatorScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: _buildDrawer(),
-      backgroundColor: const Color(0xFFF8FAFF),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildAppBar(),
-            _buildDisplayCard(),
-            _buildScientificRows(),
-            Expanded(child: _buildKeypad()),
-          ],
-        ),
-      ),
-      bottomNavigationBar: _buildBottomNav(),
+    final manager = SettingsManager();
+
+    return ListenableBuilder(
+      listenable: manager,
+      builder: (context, _) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final bgColor = isDark ? const Color(0xFF0D1117) : const Color(0xFFF8FAFF);
+        final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+        final textColor = isDark ? Colors.white : AppTheme.textDark;
+
+        return Scaffold(
+          key: _scaffoldKey,
+          drawer: _buildDrawer(manager),
+          backgroundColor: bgColor,
+          body: SafeArea(
+            child: Column(
+              children: [
+                _buildAppBar(manager, textColor),
+                _buildDisplayCard(manager, cardColor, textColor),
+                _buildScientificRows(manager, cardColor),
+                Expanded(child: _buildKeypad(manager, cardColor)),
+              ],
+            ),
+          ),
+          bottomNavigationBar: _buildBottomNav(manager, cardColor),
+        );
+      },
     );
   }
 
-  Widget _buildAppBar() => Padding(
+  Widget _buildAppBar(SettingsManager manager, Color textColor) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     child: Row(
       children: [
         IconButton(
-          icon: const Icon(Icons.menu_rounded,
-              color: AppTheme.textDark, size: 26),
+          icon: Icon(Icons.menu_rounded,
+              color: textColor, size: 26),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         const SizedBox(width: 4),
@@ -333,16 +337,16 @@ class _CalculatorScreenState extends State<CalculatorScreen>
         ),
         const SizedBox(width: 8),
         RichText(
-          text: const TextSpan(
+          text: TextSpan(
             children: [
               TextSpan(
                 text: 'NetCalc',
                 style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.textDark),
+                    color: textColor),
               ),
-              TextSpan(
+              const TextSpan(
                 text: ' Pro',
                 style: TextStyle(
                     fontSize: 19,
@@ -357,32 +361,34 @@ class _CalculatorScreenState extends State<CalculatorScreen>
           Icons.history_rounded,
           () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const HistoryScreen())),
+          textColor,
           tooltip: 'History',
         ),
         _circleIcon(
           Icons.star_outline_rounded,
           () => Navigator.push(context,
               MaterialPageRoute(builder: (_) => const FavoritesScreen())),
+          textColor,
           tooltip: 'Favorites',
         ),
       ],
     ),
   );
 
-  Widget _circleIcon(IconData icon, VoidCallback onTap, {String tooltip = ''}) =>
+  Widget _circleIcon(IconData icon, VoidCallback onTap, Color textColor, {String tooltip = ''}) =>
       Tooltip(
         message: tooltip,
         child: Container(
           margin: const EdgeInsets.only(left: 6),
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
             shape: BoxShape.circle,
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
             ],
           ),
           child: IconButton(
-            icon: Icon(icon, color: AppTheme.textDark, size: 20),
+            icon: Icon(icon, color: textColor, size: 20),
             onPressed: onTap,
             splashRadius: 20,
             padding: EdgeInsets.zero,
@@ -391,15 +397,15 @@ class _CalculatorScreenState extends State<CalculatorScreen>
         ),
       );
 
-  Widget _buildDisplayCard() => Container(
+  Widget _buildDisplayCard(SettingsManager manager, Color cardColor, Color textColor) => Container(
     margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
     padding: const EdgeInsets.all(20),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: cardColor,
       borderRadius: BorderRadius.circular(28),
       boxShadow: [
         BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 20,
             offset: const Offset(0, 10))
       ],
@@ -409,16 +415,15 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       children: [
         Row(
           children: [
-            _chip(_angleMode, () {
-              setState(() {
-                _angleMode = _angleMode == 'DEG'
-                    ? 'RAD'
-                    : (_angleMode == 'RAD' ? 'GRAD' : 'DEG');
-              });
+            _chip(manager.angleMode, () {
+              final next = manager.angleMode == 'DEG'
+                  ? 'RAD'
+                  : (manager.angleMode == 'RAD' ? 'GRAD' : 'DEG');
+              manager.setAngleMode(next);
               _livePreview();
-            }),
+            }, manager.accentColor),
             const SizedBox(width: 8),
-            _chip('$_precision Digits', _pickPrecision),
+            _chip('${manager.precision} Digits', _pickPrecision, manager.accentColor),
             const Spacer(),
             // Save to Favorites — only shown after a calculation
             if (_justCalculated)
@@ -431,7 +436,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
                     savedAt: DateTime.now(),
                   );
                   await LocalStorage.addFavorite(entry);
-                  HapticFeedback.lightImpact();
+                  if (manager.haptic) HapticFeedback.lightImpact();
                   if (mounted) setState(() => _isFav = true);
                 },
                 child: AnimatedSwitcher(
@@ -477,7 +482,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
                     _result.contains('Division') ||
                     _result.contains('Syntax'))
                     ? AppTheme.textPink
-                    : AppTheme.textDark,
+                    : textColor,
               ),
             ),
           ),
@@ -486,25 +491,25 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     ),
   );
 
-  Widget _chip(String label, VoidCallback onTap) => GestureDetector(
+  Widget _chip(String label, VoidCallback onTap, Color color) => GestureDetector(
     onTap: onTap,
     child: Container(
       padding:
       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBlue.withValues(alpha: 0.06),
+        color: color.withOpacity(0.06),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
           Text(label,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
-                  color: AppTheme.primaryBlue)),
+                  color: color)),
           if (label.contains('Digits'))
-            const Icon(Icons.keyboard_arrow_down_rounded,
-                size: 12, color: AppTheme.primaryBlue),
+            Icon(Icons.keyboard_arrow_down_rounded,
+                size: 12, color: color),
         ],
       ),
     ),
@@ -517,14 +522,14 @@ class _CalculatorScreenState extends State<CalculatorScreen>
       .replaceAll('ANS', 'Ans')
       .replaceAll('pi', 'π');
 
-  Widget _buildScientificRows() => Column(
+  Widget _buildScientificRows(SettingsManager manager, Color cardColor) => Column(
     children: [
-      _sciRow(['sin', 'cos', 'tan', 'log', 'ln', '√', 'π']),
-      _sciRow(['e', 'x²', 'xʸ', '%', '!', 'ABS', 'MOD']),
+      _sciRow(['sin', 'cos', 'tan', 'log', 'ln', '√', 'π'], manager.accentColor, cardColor),
+      _sciRow(['e', 'x²', 'xʸ', '%', '!', 'ABS', 'MOD'], manager.accentColor, cardColor),
     ],
   );
 
-  Widget _sciRow(List<String> items) => Container(
+  Widget _sciRow(List<String> items, Color color, Color cardColor) => Container(
     height: 38,
     margin: const EdgeInsets.fromLTRB(14, 0, 14, 8),
     child: Row(
@@ -532,7 +537,7 @@ class _CalculatorScreenState extends State<CalculatorScreen>
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
           child: Material(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(8),
             elevation: 1,
             shadowColor: Colors.black12,
@@ -543,8 +548,8 @@ class _CalculatorScreenState extends State<CalculatorScreen>
                 alignment: Alignment.center,
                 child: Text(
                   item,
-                  style: const TextStyle(
-                      color: AppTheme.primaryBlue,
+                  style: TextStyle(
+                      color: color,
                       fontWeight: FontWeight.w600,
                       fontSize: 11),
                 ),
@@ -556,14 +561,14 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     ),
   );
 
-  Widget _buildKeypad() => Container(
+  Widget _buildKeypad(SettingsManager manager, Color cardColor) => Container(
     margin: const EdgeInsets.only(top: 8),
     padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-    decoration: const BoxDecoration(
-      color: Colors.white,
+    decoration: BoxDecoration(
+      color: cardColor,
       borderRadius:
-      BorderRadius.vertical(top: Radius.circular(32)),
-      boxShadow: [
+      const BorderRadius.vertical(top: Radius.circular(32)),
+      boxShadow: const [
         BoxShadow(
             color: Colors.black12,
             blurRadius: 20,
@@ -590,13 +595,13 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     onPressed: () => _onTap(label),
   );
 
-  Widget _buildBottomNav() => Container(
+  Widget _buildBottomNav(SettingsManager manager, Color cardColor) => Container(
     height: 72,
-    decoration: const BoxDecoration(
-      color: Colors.white,
+    decoration: BoxDecoration(
+      color: cardColor,
       borderRadius:
-      BorderRadius.vertical(top: Radius.circular(28)),
-      boxShadow: [
+      const BorderRadius.vertical(top: Radius.circular(28)),
+      boxShadow: const [
         BoxShadow(
             color: Colors.black12,
             blurRadius: 10,
@@ -606,15 +611,15 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _navItem(Icons.grid_view_rounded, 'Calculator', 0),
-        _navItem(Icons.swap_horiz_rounded, 'Converter', 1),
-        _navItem(Icons.functions_rounded, 'Formula', 2),
-        _navItem(Icons.more_horiz_rounded, 'More', 3),
+        _navItem(Icons.grid_view_rounded, 'Calculator', 0, manager),
+        _navItem(Icons.swap_horiz_rounded, 'Converter', 1, manager),
+        _navItem(Icons.functions_rounded, 'Formula', 2, manager),
+        _navItem(Icons.more_horiz_rounded, 'More', 3, manager),
       ],
     ),
   );
 
-  Widget _navItem(IconData icon, String label, int index) {
+  Widget _navItem(IconData icon, String label, int index, SettingsManager manager) {
     final bool active = _navIndex == index;
     return GestureDetector(
       onTap: () {
@@ -641,15 +646,15 @@ class _CalculatorScreenState extends State<CalculatorScreen>
             const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: BoxDecoration(
               color: active
-                  ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+                  ? manager.accentColor.withOpacity(0.1)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
               icon,
               color: active
-                  ? AppTheme.primaryBlue
-                  : AppTheme.textGrey.withValues(alpha: 0.5),
+                  ? manager.accentColor
+                  : AppTheme.textGrey.withOpacity(0.5),
               size: 24,
             ),
           ),
@@ -660,8 +665,8 @@ class _CalculatorScreenState extends State<CalculatorScreen>
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: active
-                  ? AppTheme.primaryBlue
-                  : AppTheme.textGrey.withValues(alpha: 0.5),
+                  ? manager.accentColor
+                  : AppTheme.textGrey.withOpacity(0.5),
             ),
           ),
         ],
@@ -669,152 +674,186 @@ class _CalculatorScreenState extends State<CalculatorScreen>
     );
   }
 
-  Widget _buildDrawer() => Drawer(
-    backgroundColor: Colors.white,
-    child: SafeArea(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Row(
-              children: [
-                Image.asset(
-                  'assets/images/splash_logo.png',
-                  width: 32,
-                  height: 32,
-                  errorBuilder: (c, e, s) => const Icon(
-                      Icons.calculate_rounded,
-                      color: AppTheme.primaryBlue),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'NetCalc Pro',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.textDark),
-                ),
-              ],
-            ),
-          ),
-          const Divider(),
-          Expanded(
-            child: ListView(
-              children: [
-                // ── Quick access ──────────────────────────────────────
-                _drawerSection('Quick Access'),
-                _drawerItem(
-                  Icons.history_rounded,
-                  'History',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const HistoryScreen())),
-                ),
-                _drawerItem(
-                  Icons.star_outline_rounded,
-                  'Favorites',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const FavoritesScreen())),
-                ),
-                // ── Tools ─────────────────────────────────────────────
-                _drawerSection('Tools'),
-                _drawerItem(
-                  Icons.science_outlined,
-                  'Scientific',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const ScientificScreen())),
-                ),
-                _drawerItem(
-                  Icons.account_balance_rounded,
-                  'Finance',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const FinanceScreen())),
-                ),
-                _drawerItem(
-                  Icons.code_rounded,
-                  'Programmer',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const ProgrammerScreen())),
-                ),
-                _drawerItem(
-                  Icons.calculate_outlined,
-                  'Fractions',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const FractionScreen())),
-                ),
-                _drawerItem(
-                  Icons.grid_3x3_rounded,
-                  'Matrix',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const MatrixScreen())),
-                ),
-                _drawerItem(
-                  Icons.bar_chart_rounded,
-                  'Statistics',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const StatisticsScreen())),
-                ),
-                _drawerItem(
-                  Icons.swap_horiz_rounded,
-                  'Unit Converter',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const UnitConversionScreen())),
-                ),
-                _drawerItem(
-                  Icons.menu_book_outlined,
-                  'Formula Library',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const FormulaScreen())),
-                ),
-                // ── Settings ──────────────────────────────────────────
-                _drawerSection('Settings'),
-                _drawerItem(
-                  Icons.palette_outlined,
-                  'Appearance',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const AppearanceScreen())),
-                ),
-                _drawerItem(
-                  Icons.settings_outlined,
-                  'Settings',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const SettingsScreen())),
-                ),
-                _drawerItem(
-                  Icons.help_outline_rounded,
-                  'Help & Guide',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const HelpScreen())),
-                ),
-                _drawerItem(
-                  Icons.info_outline_rounded,
-                  'About',
-                  () => Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const AboutScreen())),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
+  Widget _buildDrawer(SettingsManager manager) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final drawerBg = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+    final subColor = isDark ? Colors.white70 : AppTheme.textGrey;
 
-  Widget _drawerSection(String title) => Padding(
+    return Drawer(
+      backgroundColor: drawerBg,
+      child: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                children: [
+                  Image.asset(
+                    'assets/images/splash_logo.png',
+                    width: 32,
+                    height: 32,
+                    errorBuilder: (c, e, s) => Icon(
+                        Icons.calculate_rounded,
+                        color: manager.accentColor),
+                  ),
+                  const SizedBox(width: 12),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'NetCalc',
+                          style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: textColor),
+                        ),
+                        const TextSpan(
+                          text: ' Pro',
+                          style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.primaryPurple),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(color: isDark ? Colors.white10 : Colors.black12),
+            Expanded(
+              child: ListView(
+                children: [
+                  // ── Quick access ──────────────────────────────────────
+                  _drawerSection('Quick Access', subColor),
+                  _drawerItem(
+                    Icons.history_rounded,
+                    'History',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const HistoryScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.star_outline_rounded,
+                    'Favorites',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const FavoritesScreen())),
+                    subColor, textColor
+                  ),
+                  // ── Tools ─────────────────────────────────────────────
+                  _drawerSection('Tools', subColor),
+                  _drawerItem(
+                    Icons.science_outlined,
+                    'Scientific',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const ScientificScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.account_balance_rounded,
+                    'Finance',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const FinanceScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.code_rounded,
+                    'Programmer',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const ProgrammerScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.calculate_outlined,
+                    'Fractions',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const FractionScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.grid_3x3_rounded,
+                    'Matrix',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const MatrixScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.bar_chart_rounded,
+                    'Statistics',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const StatisticsScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.swap_horiz_rounded,
+                    'Unit Converter',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const UnitConversionScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.menu_book_outlined,
+                    'Formula Library',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const FormulaScreen())),
+                    subColor, textColor
+                  ),
+                  // ── Settings ──────────────────────────────────────────
+                  _drawerSection('Settings', subColor),
+                  _drawerItem(
+                    Icons.palette_outlined,
+                    'Appearance',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const AppearanceScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.settings_outlined,
+                    'Settings',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.help_outline_rounded,
+                    'Help & Guide',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const HelpScreen())),
+                    subColor, textColor
+                  ),
+                  _drawerItem(
+                    Icons.info_outline_rounded,
+                    'About',
+                    () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const AboutScreen())),
+                    subColor, textColor
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerSection(String title, Color color) => Padding(
     padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
     child: Text(
       title.toUpperCase(),
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w800,
-        color: AppTheme.textGrey,
+        color: color,
         letterSpacing: 1.5,
       ),
     ),
   );
 
-  Widget _drawerItem(IconData i, String l, VoidCallback t) => ListTile(
-    leading: Icon(i, color: AppTheme.textGrey, size: 20),
-    title: Text(l, style: const TextStyle(fontWeight: FontWeight.w500)),
+  Widget _drawerItem(IconData i, String l, VoidCallback t, Color iconColor, Color textColor) => ListTile(
+    leading: Icon(i, color: iconColor, size: 20),
+    title: Text(l, style: TextStyle(fontWeight: FontWeight.w500, color: textColor)),
     dense: true,
     onTap: () {
       Navigator.pop(context);
@@ -1034,7 +1073,7 @@ String sanitizeExpr(String raw, String prevAns) {
   // Replace standalone 'e' used as Euler's number — but NOT when it is
   // part of scientific notation like 1e10 or 2.5e-3 (digit before e).
   s = s.replaceAllMapped(
-    RegExp(r'(?<!\d)(?<![a-zA-Z])e(?![a-zA-Z(0-9\+\-])'),
+    RegExp(r'(?<!\d)(?<![a-zA-Z])e(?![a-zA-Z(0-9+\-])'),
         (_) => '(${math.e})',
   );
 

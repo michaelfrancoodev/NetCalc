@@ -108,11 +108,15 @@ class _FormulaScreenState extends State<FormulaScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Formula Library'),
-        backgroundColor: AppTheme.background,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         bottom: TabBar(
           controller: _tabCtrl,
@@ -131,12 +135,13 @@ class _FormulaScreenState extends State<FormulaScreen>
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
               child: TextField(
                 onChanged: (v) => setState(() => _search = v),
+                style: TextStyle(color: textColor),
                 decoration: InputDecoration(
                   hintText: 'Search formulas...',
                   prefixIcon: const Icon(Icons.search_rounded,
                       color: AppTheme.textGrey),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: isDark ? Colors.white10 : Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
@@ -149,7 +154,7 @@ class _FormulaScreenState extends State<FormulaScreen>
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: _filtered.length,
-                itemBuilder: (_, i) => _formulaCard(_filtered[i]),
+                itemBuilder: (_, i) => _formulaCard(_filtered[i], cardColor, textColor),
               ),
             ),
           ],
@@ -158,17 +163,17 @@ class _FormulaScreenState extends State<FormulaScreen>
     );
   }
 
-  Widget _formulaCard(FormulaItem f) => GestureDetector(
+  Widget _formulaCard(FormulaItem f, Color cardColor, Color textColor) => GestureDetector(
         onTap: () => _showDetail(f),
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04), blurRadius: 10)
+                  color: Colors.black.withOpacity(0.04), blurRadius: 10)
             ],
           ),
           child: Column(
@@ -180,7 +185,7 @@ class _FormulaScreenState extends State<FormulaScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: _catColor(f.category).withValues(alpha: 0.1),
+                      color: _catColor(f.category).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(f.category,
@@ -192,15 +197,15 @@ class _FormulaScreenState extends State<FormulaScreen>
                   const Spacer(),
                   Icon(Icons.arrow_forward_ios_rounded,
                       size: 14,
-                      color: AppTheme.textGrey.withValues(alpha: 0.5)),
+                      color: AppTheme.textGrey.withOpacity(0.5)),
                 ],
               ),
               const SizedBox(height: 8),
               Text(f.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.textDark)),
+                      color: textColor)),
               const SizedBox(height: 4),
               Text(f.formula,
                   style: const TextStyle(
@@ -222,15 +227,19 @@ class _FormulaScreenState extends State<FormulaScreen>
       );
 
   void _showDetail(FormulaItem f) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => Container(
         height: MediaQuery.of(context).size.height * 0.6,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         ),
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -241,19 +250,19 @@ class _FormulaScreenState extends State<FormulaScreen>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                      color: AppTheme.textGrey.withValues(alpha: 0.3),
+                      color: AppTheme.textGrey.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(2))),
             ),
             const SizedBox(height: 20),
             Text(f.name,
-                style: const TextStyle(
-                    fontSize: 22, fontWeight: FontWeight.w800)),
+                style: TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.w800, color: textColor)),
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withValues(alpha: 0.06),
+                color: AppTheme.primaryBlue.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Text(f.formula,
@@ -269,20 +278,20 @@ class _FormulaScreenState extends State<FormulaScreen>
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppTheme.textGrey.withValues(alpha: 0.7))),
+                    color: AppTheme.textGrey.withOpacity(0.7))),
             const SizedBox(height: 4),
             Text(
                 f.description.isEmpty
                     ? 'No description available.'
                     : f.description,
-                style: const TextStyle(fontSize: 15, height: 1.6)),
+                style: TextStyle(fontSize: 15, height: 1.6, color: textColor)),
             if (f.variables.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text('Variables',
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.textGrey.withValues(alpha: 0.7))),
+                      color: AppTheme.textGrey.withOpacity(0.7))),
               const SizedBox(height: 8),
               ...f.variables.entries.map((e) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),

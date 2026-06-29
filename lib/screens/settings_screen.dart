@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../database/local_storage.dart';
 import '../theme/app_theme.dart';
+import '../theme/settings_manager.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -11,220 +12,190 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _angleMode = 'DEG';
-  int _precision = 10;
-  bool _haptic = true;
-  bool _sound = false;
-  String _numberFormat = 'US (1,000.00)';
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final p = await SharedPreferences.getInstance();
-      if (!mounted) return;
-      setState(() {
-        _angleMode    = p.getString('angle_mode')    ?? 'DEG';
-        _precision    = p.getInt('precision')         ?? 10;
-        _haptic       = p.getBool('haptic')           ?? true;
-        _sound        = p.getBool('sound')            ?? false;
-        _numberFormat = p.getString('number_format')  ?? 'US (1,000.00)';
-      });
-    } catch (_) {
-      // SharedPreferences unavailable — keep defaults silently
-    }
-  }
-
-  Future<void> _save() async {
-    try {
-      final p = await SharedPreferences.getInstance();
-      await p.setString('angle_mode',    _angleMode);
-      await p.setInt('precision',         _precision);
-      await p.setBool('haptic',           _haptic);
-      await p.setBool('sound',            _sound);
-      await p.setString('number_format',  _numberFormat);
-    } catch (_) {
-      // Persist failure is non-fatal — UI already reflects latest state
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.mainBackground),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 8, 8),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: AppTheme.textDark, size: 20),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    const Text(
-                      'Settings',
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textDark),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(color: Colors.black12, height: 1),
+    final manager = SettingsManager();
 
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    // ── Calculator ──────────────────────────────────────────
-                    _header('Calculator'),
-                    _card([
-                      _dropdownTile('Angle Mode', _angleMode,
-                          ['DEG', 'RAD', 'GRAD'],
-                          (v) { setState(() => _angleMode = v!); _save(); }),
-                      const Divider(height: 1),
-                      _sliderTile('Decimal Precision', _precision, 2, 15,
-                          (v) { setState(() => _precision = v.round()); _save(); }),
-                      const Divider(height: 1),
-                      _dropdownTile(
-                          'Number Format',
-                          _numberFormat,
-                          ['US (1,000.00)', 'EU (1.000,00)', 'IN (1,00,000)'],
-                          (v) { setState(() => _numberFormat = v!); _save(); }),
-                    ]),
+    return ListenableBuilder(
+      listenable: manager,
+      builder: (context, _) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final textColor = isDark ? Colors.white : AppTheme.textDark;
+        final cardColor = isDark ? const Color(0xFF161B22) : Colors.white;
 
-                    const SizedBox(height: 16),
-
-                    // ── Feedback ───────────────────────────────────────────
-                    _header('Feedback'),
-                    _card([
-                      _switchTile('Haptic Feedback', Icons.vibration_rounded,
-                          _haptic, (v) { setState(() => _haptic = v); _save(); }),
-                      const Divider(height: 1),
-                      _switchTile('Sound Effects', Icons.volume_up_rounded,
-                          _sound, (v) { setState(() => _sound = v); _save(); }),
-                    ]),
-
-                    const SizedBox(height: 16),
-
-                    // ── Data ───────────────────────────────────────────────
-                    _header('Data'),
-                    _card([
-                      _actionTile(
-                        'Clear All History',
-                        Icons.delete_sweep_rounded,
-                        AppTheme.textPink,
-                        () => _confirm(
-                          'Clear History',
-                          'This will permanently delete all calculation history.',
-                          () async {
-                            final messenger = ScaffoldMessenger.of(context);
-                            await LocalStorage.clearHistory();
-                            if (!mounted) return;
-                            messenger.showSnackBar(
-                              const SnackBar(
-                                content: Text('History cleared'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
+        return Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          body: Container(
+            decoration: BoxDecoration(gradient: isDark ? null : AppTheme.mainBackground),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 8, 8, 8),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_ios_new_rounded,
+                              color: textColor, size: 20),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                      ),
-                      const Divider(height: 1),
-                      _actionTile(
-                        'Clear All Favorites',
-                        Icons.star_border_rounded,
-                        AppTheme.textPink,
-                        () => _confirm(
-                          'Clear Favorites',
-                          'This will permanently delete all saved favorites.',
-                          () async {
-                            final messenger = ScaffoldMessenger.of(context);
-                            await LocalStorage.clearFavorites();
-                            if (!mounted) return;
-                            messenger.showSnackBar(
-                              const SnackBar(
-                                content: Text('Favorites cleared'),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
+                        Text(
+                          'Settings',
+                          style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: textColor),
                         ),
-                      ),
-                      const Divider(height: 1),
-                      _actionTile(
-                        'Reset Onboarding',
-                        Icons.refresh_rounded,
-                        AppTheme.primaryPurple,
-                        () async {
-                          final messenger = ScaffoldMessenger.of(context);
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setBool('onboarding_completed', false);
-                          if (!mounted) return;
-                          messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text('Onboarding reset. Restart the app.'),
-                              behavior: SnackBarBehavior.floating,
+                      ],
+                    ),
+                  ),
+                  Divider(color: isDark ? Colors.white10 : Colors.black12, height: 1),
+
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        // ── Calculator ──────────────────────────────────────────
+                        _header('Calculator', manager.accentColor),
+                        _card(cardColor, [
+                          _dropdownTile('Angle Mode', manager.angleMode,
+                              ['DEG', 'RAD', 'GRAD'], manager.accentColor, textColor,
+                              (v) => manager.setAngleMode(v!)),
+                          Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+                          _sliderTile('Decimal Precision', manager.precision, 2, 15, manager.accentColor, textColor,
+                              (v) => manager.setPrecision(v.round())),
+                          Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+                          _dropdownTile(
+                              'Number Format',
+                              manager.numberFormat,
+                              ['US (1,000.00)', 'EU (1.000,00)', 'IN (1,00,000)'], manager.accentColor, textColor,
+                              (v) => manager.setNumberFormat(v!)),
+                        ]),
+
+                        const SizedBox(height: 16),
+
+                        // ── Feedback ───────────────────────────────────────────
+                        _header('Feedback', manager.accentColor),
+                        _card(cardColor, [
+                          _switchTile('Haptic Feedback', Icons.vibration_rounded,
+                              manager.haptic, manager.accentColor, textColor, (v) => manager.setHaptic(v)),
+                          Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+                          _switchTile('Sound Effects', Icons.volume_up_rounded,
+                              manager.sound, manager.accentColor, textColor, (v) => manager.setSound(v)),
+                        ]),
+
+                        const SizedBox(height: 16),
+
+                        // ── Data ───────────────────────────────────────────────
+                        _header('Data', manager.accentColor),
+                        _card(cardColor, [
+                          _actionTile(
+                            'Clear All History',
+                            Icons.delete_sweep_rounded,
+                            AppTheme.textPink,
+                            () => _confirm(
+                              'Clear History',
+                              'This will permanently delete all calculation history.',
+                              () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                await LocalStorage.clearHistory();
+                                if (!mounted) return;
+                                messenger.showSnackBar(
+                                  const SnackBar(
+                                    content: Text('History cleared'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
-                    ]),
+                          ),
+                          Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+                          _actionTile(
+                            'Clear All Favorites',
+                            Icons.star_border_rounded,
+                            AppTheme.textPink,
+                            () => _confirm(
+                              'Clear Favorites',
+                              'This will permanently delete all saved favorites.',
+                              () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                await LocalStorage.clearFavorites();
+                                if (!mounted) return;
+                                messenger.showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Favorites cleared'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+                          _actionTile(
+                            'Reset Onboarding',
+                            Icons.refresh_rounded,
+                            AppTheme.primaryPurple,
+                            () async {
+                              final messenger = ScaffoldMessenger.of(context);
+                              final prefs = await SharedPreferences.getInstance();
+                              await prefs.setBool('onboarding_completed', false);
+                              if (!mounted) return;
+                              messenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text('Onboarding reset. Restart the app.'),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                          ),
+                        ]),
 
-                    const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                    // ── About ──────────────────────────────────────���───────
-                    _header('About'),
-                    _card([
-                      _infoTile(Icons.info_outline_rounded, Colors.black45,
-                          'Version', 'NetCalc Pro 1.0.0'),
-                      const Divider(height: 1),
-                      _infoTile(Icons.code_rounded, Colors.black45,
-                          'Built with Flutter', 'Offline • No Ads • No Tracking'),
-                    ]),
-                  ],
-                ),
+                        // ── About ──────────────────────────────────────────────
+                        _header('About', manager.accentColor),
+                        _card(cardColor, [
+                          _infoTile(Icons.info_outline_rounded, Colors.black45,
+                              'Version', 'NetCalc Pro 1.0.0', textColor),
+                          Divider(height: 1, color: isDark ? Colors.white10 : Colors.black12),
+                          _infoTile(Icons.code_rounded, Colors.black45,
+                              'Built with Flutter', 'Offline • No Ads • No Tracking', textColor),
+                        ]),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
-  Widget _header(String t) => Padding(
+  Widget _header(String t, Color color) => Padding(
         padding: const EdgeInsets.only(bottom: 8, left: 4),
         child: Text(
           t,
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: AppTheme.primaryBlue,
+              color: color,
               letterSpacing: 1.4),
         ),
       );
 
-  Widget _card(List<Widget> children) => Container(
+  Widget _card(Color cardColor, List<Widget> children) => Container(
         margin: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: Colors.black.withOpacity(0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4))
           ],
@@ -233,35 +204,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
   Widget _switchTile(
-          String label, IconData icon, bool val, void Function(bool) onChange) =>
+          String label, IconData icon, bool val, Color color, Color textColor, void Function(bool) onChange) =>
       ListTile(
         leading: Container(
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withValues(alpha: 0.1),
+            color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: AppTheme.primaryBlue, size: 20),
+          child: Icon(icon, color: color, size: 20),
         ),
         title: Text(label,
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: textColor)),
         trailing: Switch.adaptive(
             value: val,
             onChanged: onChange,
-            activeThumbColor: AppTheme.primaryBlue),
+            activeThumbColor: color),
       );
 
-  Widget _dropdownTile(String label, String val, List<String> options,
+  Widget _dropdownTile(String label, String val, List<String> options, Color color, Color textColor,
           void Function(String?) onChange) =>
       ListTile(
         title: Text(label,
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: textColor)),
         trailing: DropdownButton<String>(
           value: val,
           underline: const SizedBox(),
-          style: const TextStyle(
-              color: AppTheme.primaryBlue,
+          dropdownColor: Theme.of(context).cardColor,
+          style: TextStyle(
+              color: color,
               fontWeight: FontWeight.w700,
               fontFamily: 'Roboto'),
           items: options
@@ -271,7 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
 
-  Widget _sliderTile(String label, int val, int min, int max,
+  Widget _sliderTile(String label, int val, int min, int max, Color color, Color textColor,
           void Function(double) onChange) =>
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -280,21 +252,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Row(children: [
               Text(label,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w500, fontSize: 15)),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 15, color: textColor)),
               const Spacer(),
-              Text('$val digits',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.primaryBlue)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text('$val digits',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                        color: color)),
+              ),
             ]),
-            Slider(
-              value: val.toDouble(),
-              min: min.toDouble(),
-              max: max.toDouble(),
-              divisions: max - min,
-              onChanged: onChange,
-              activeColor: AppTheme.primaryBlue,
+            const SizedBox(height: 4),
+            SliderTheme(
+              data: SliderThemeData(
+                activeTrackColor: color,
+                inactiveTrackColor: color.withOpacity(0.2),
+                thumbColor: color,
+                overlayColor: color.withOpacity(0.1),
+                trackHeight: 4,
+              ),
+              child: Slider(
+                value: val.toDouble(),
+                min: min.toDouble(),
+                max: max.toDouble(),
+                divisions: max - min,
+                onChanged: onChange,
+              ),
             ),
           ],
         ),
@@ -307,7 +296,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -321,13 +310,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
   Widget _infoTile(
-          IconData icon, Color iconColor, String label, String value) =>
+          IconData icon, Color iconColor, String label, String value, Color textColor) =>
       ListTile(
         leading: Container(
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.1),
+            color: iconColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: iconColor, size: 20),
@@ -338,20 +327,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontSize: 13,
                 fontWeight: FontWeight.w400)),
         trailing: Text(value,
-            style: const TextStyle(
-                fontWeight: FontWeight.w700, color: AppTheme.textDark)),
+            style: TextStyle(
+                fontWeight: FontWeight.w700, color: textColor)),
       );
 
   Future<void> _confirm(
       String title, String message, Future<void> Function() onConfirm) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.textDark;
+
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text(title,
-            style: const TextStyle(color: AppTheme.textDark)),
+            style: TextStyle(color: textColor)),
         content: Text(message,
             style: const TextStyle(color: AppTheme.textGrey)),
         actions: [

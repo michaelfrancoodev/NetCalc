@@ -11,38 +11,34 @@ class ProgrammerScreen extends StatefulWidget {
 
 class _ProgrammerScreenState extends State<ProgrammerScreen> {
   String _input = '';
-  int _value = 0;
+  BigInt _value = BigInt.zero;
   String _base = 'DEC'; // DEC, HEX, OCT, BIN
   int _bits = 32;
 
   // Two-operand bitwise operation state
-  int? _operand1;
+  BigInt? _operand1;
   String? _pendingOp;
 
-  int get _mask {
-    switch (_bits) {
-      case 8:  return 0xFF;
-      case 16: return 0xFFFF;
-      case 64: return 0x7FFFFFFFFFFFFFFF;
-      default: return 0xFFFFFFFF;
-    }
+  BigInt get _mask {
+    return (BigInt.one << _bits) - BigInt.one;
   }
 
   void _parse() {
     try {
+      final cleanInput = _input.replaceAll(' ', '');
       switch (_base) {
-        case 'DEC': _value = int.parse(_input.isEmpty ? '0' : _input); break;
-        case 'HEX': _value = int.parse(_input.isEmpty ? '0' : _input, radix: 16); break;
-        case 'OCT': _value = int.parse(_input.isEmpty ? '0' : _input, radix: 8); break;
-        case 'BIN': _value = int.parse(_input.isEmpty ? '0' : _input, radix: 2); break;
+        case 'DEC': _value = BigInt.parse(cleanInput.isEmpty ? '0' : cleanInput); break;
+        case 'HEX': _value = BigInt.parse(cleanInput.isEmpty ? '0' : cleanInput, radix: 16); break;
+        case 'OCT': _value = BigInt.parse(cleanInput.isEmpty ? '0' : cleanInput, radix: 8); break;
+        case 'BIN': _value = BigInt.parse(cleanInput.isEmpty ? '0' : cleanInput, radix: 2); break;
       }
       _value &= _mask;
     } catch (_) {
-      _value = 0;
+      _value = BigInt.zero;
     }
   }
 
-  String _displayFor(int v, String base) {
+  String _displayFor(BigInt v, String base) {
     switch (base) {
       case 'HEX': return v.toRadixString(16).toUpperCase();
       case 'OCT': return v.toRadixString(8);
@@ -60,7 +56,7 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
       switch (l) {
         case 'AC':
           _input = '';
-          _value = 0;
+          _value = BigInt.zero;
           _operand1 = null;
           _pendingOp = null;
           break;
@@ -103,7 +99,7 @@ class _ProgrammerScreenState extends State<ProgrammerScreen> {
               case 'XOR':  _value = (a ^ b) & _mask; break;
               case 'NAND': _value = (~(a & b)) & _mask; break;
               case 'NOR':  _value = (~(a | b)) & _mask; break;
-              case 'MOD':  _value = b != 0 ? a % b : 0; break;
+              case 'MOD':  _value = b != BigInt.zero ? a % b : BigInt.zero; break;
             }
             _operand1 = null;
             _pendingOp = null;

@@ -526,36 +526,33 @@ class _CalculatorScreenState extends State<CalculatorScreen>
 
   Widget _sciRow(List<String> items) => Container(
     height: 38,
-    margin: const EdgeInsets.only(bottom: 8),
-    child: ListView.builder(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: items.length,
-      itemBuilder: (c, i) => Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: Material(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          elevation: 1,
-          shadowColor: Colors.black12,
-          child: InkWell(
-            onTap: () => _onTap(items[i]),
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 16),
-              alignment: Alignment.center,
-              child: Text(
-                items[i],
-                style: const TextStyle(
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13),
+    margin: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+    child: Row(
+      children: items.map((item) => Expanded(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Material(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            elevation: 1,
+            shadowColor: Colors.black12,
+            child: InkWell(
+              onTap: () => _onTap(item),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                alignment: Alignment.center,
+                child: Text(
+                  item,
+                  style: const TextStyle(
+                      color: AppTheme.primaryBlue,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11),
+                ),
               ),
             ),
           ),
         ),
-      ),
+      )).toList(),
     ),
   );
 
